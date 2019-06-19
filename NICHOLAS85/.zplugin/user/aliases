@@ -1,0 +1,30 @@
+#Let Atom highlight this: -*- shell-script -*-
+
+# Allows leaving from deleted directories
+alias ..='command .. 2>/dev/null || cd $(dirname $PWD)'
+
+# Access zsh config files
+alias zshconf='${=EDITOR} ${HOME}/.zplugin/user/aliases ${HOME}/.zplugin/user/functions ${HOME}/.zplugin/user/variables ${HOME}/.zshrc &!'
+
+alias "zshconfatom"='atom ${HOME}/.zplugin/user/aliases ${HOME}/.zplugin/user/functions ${HOME}/.zplugin/user/variables ${HOME}/.zshrc &!'
+
+# dot file management
+alias dots=' /usr/bin/git --git-dir=$HOME/.dots/ --work-tree=$HOME'
+#           ^Space added to remove this command from history
+
+# Aesthetic function for Dolphin, clear -x if cd while in Dolphin
+$isdolphin && alias cd='clear -x; cd'
+
+alias rm='rm -I'
+alias ls='lsd --group-dirs=first'
+alias apt="apt-fast"
+alias open='xdg-open'
+alias sudo='sudo  ' #allow sudo to expand aliases (checkinstall for example)
+alias checkinstall='checkinstall -D --pakdir=${HOME}/OneDrive/Linux/installed/debs/built'
+alias gencomp='echo "Use gcomp"'
+
+unalias zplg
+
+if [[ -n $SSH_CONNECTION ]]; then
+    alias ls="lsd --group-dirs=first --icon=never"
+fi

@@ -1,0 +1,40 @@
+#Let Atom highlight this: -*- shell-script -*-
+
+# Shows top used commands
+history-stat(){ fc -ln 0 | awk '{print $1}' | sort | uniq -c | sort -nr | head; }
+
+auto-ls-modecheck(){
+    if [[ $(tlp-stat -s) =~ 'Mode           = battery' ]]; then
+        varcache=("${AUTO_LS_COMMANDS[@]}")
+        AUTO_LS_COMMANDS=("${AUTO_LS_COMMANDSBAT[@]}")
+        auto-ls
+        AUTO_LS_COMMANDS=("${varcache[@]}")
+        break
+    fi
+}
+
+auto-ls-colorls(){
+    if [ -d .git ] && ! [[ -n $SSH_CONNECTION ]]; then
+      eval "${colorlsgitcommand[@]}"
+    else
+      eval "${colorlscommand[@]}"
+    fi
+}
+
+dotscheck(){
+  local LC_ALL=C dotsvar1 dotsvar2 dotsvar3 dotsvar4
+
+  dotsvar1=("${dotsvar[@]/%/'}")
+  dotsvar2=("${dotsvar1[@]/#/-e '}")
+  dotsvar3=(grep -v "${dotsvar2[*]}")
+  dotsvar4=$(dots status | eval "${dotsvar3[*]}")
+  if [[ "$dotsvar4" =~ "Changes not staged" ]] && [[ "$dotsvar4" =~ "modified|Changes to be committed" ]]; then
+    echo ""
+    dots status -s
+  elif [[ "$dotsvar4" =~ "ahead of" ]]; then
+    dots status
+    dots push
+  elif [[ "$dotsvar4" =~ "is behind" ]]; then
+    dots status
+  fi
+}
