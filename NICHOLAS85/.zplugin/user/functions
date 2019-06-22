@@ -1,5 +1,22 @@
 #Let Atom highlight this: -*- shell-script -*-
 
+# https://gist.github.com/ctechols/ca1035271ad134841284
+_zpcompinit_fast() {
+  setopt extendedglob local_options
+  autoload -Uz compinit
+  local zcd=${ZPLGM[ZCOMPDUMP_PATH]:-${ZDOTDIR:-$HOME}/.zcompdump}
+  local zcdc="$zcd.zwc"
+  # Compile the completion dump to increase startup speed, if dump is newer or doesn't exist,
+  # in the background as this is doesn't affect the current session
+  if [[ -f "$zcd"(#qN.m+1) ]]; then
+        compinit -i -d "$zcd"
+        { zcompile "$zcd" } &!
+  else
+        compinit -C -d "$zcd"
+        { [[ ! -f "$zcdc" || "$zcd" -nt "$zcdc" ]] && zcompile "$zcd" } &!
+  fi
+}
+
 # Shows top used commands
 history-stat(){ fc -ln 0 | awk '{print $1}' | sort | uniq -c | sort -nr | head; }
 
@@ -16,8 +33,10 @@ auto-ls-modecheck(){
 auto-ls-colorls(){
     if [ -d .git ] && ! [[ -n $SSH_CONNECTION ]]; then
       eval "${colorlsgitcommand[@]}"
+      echo
     else
       eval "${colorlscommand[@]}"
+      echo
     fi
 }
 

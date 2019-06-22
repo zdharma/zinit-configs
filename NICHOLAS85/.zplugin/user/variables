@@ -14,11 +14,10 @@ AUTO_LS_NEWLINE=false
 
 EDITOR=kate
 
-PATH="$HOME/.cargo/bin:$PATH"
-WD_CONFIG="${ZPLGM[PLUGINS_DIR]}/mfaerevaag---wd/.warprc"
+rm_opts=(-I -v)
 
 # Directory checked for locally built projects (plugin updatelocal)
-UPDATELOCAL_GITDIR="${HOME}/github/Built/"
+UPDATELOCAL_GITDIR="${HOME}/github/Built"
 
 # Strings to ignore when using dotscheck, escape and single quote stuff that could be wild cards (../)
 dotsvar=( gtkrc-2.0 kwinrulesrc '\.\./' '\.config/gtk-3\.0/settings\.ini' )

@@ -15,13 +15,14 @@ alias dots=' /usr/bin/git --git-dir=$HOME/.dots/ --work-tree=$HOME'
 # Aesthetic function for Dolphin, clear -x if cd while in Dolphin
 $isdolphin && alias cd='clear -x; cd'
 
-alias rm='rm -I'
 alias ls='lsd --group-dirs=first'
 alias apt="apt-fast"
 alias open='xdg-open'
-alias sudo='sudo  ' #allow sudo to expand aliases (checkinstall for example)
+# allow sudo to expand aliases (checkinstall for example) as well as run anything in $PATH
+alias sudo='sudo env PATH+=:$PATH  '
 alias checkinstall='checkinstall -D --pakdir=${HOME}/OneDrive/Linux/installed/debs/built'
 alias gencomp='echo "Use gcomp"'
+alias -- -='cd -'
 
 unalias zplg
 
