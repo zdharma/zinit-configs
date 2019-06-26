@@ -48,8 +48,8 @@ The structure of the repository is very simple: in its main directory there are 
 # Install fzf
 zplugin load junegunn/fzf-bin
 # or fzy
-zplugin ice make"!PREFIX=$ZPFX install" atclone"cp contrib/fzy-* $ZPFX/bin/" pick"$ZPFX/bin/fzy*"
-zplugin load jhawthorn/fzy
+# zplugin ice make"!PREFIX=$ZPFX install" atclone"cp contrib/fzy-* $ZPFX/bin/" pick"$ZPFX/bin/fzy*"
+# zplugin load jhawthorn/fzy
 
 # Then, install this repo
 zplugin ice cloneopts'--branch feature-run --single-branch'

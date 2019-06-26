@@ -24,7 +24,6 @@ turbo2()   { zplugin ice wait"0c" lucid             "${@}"; }
 zcommand() { zplugin ice wait"0b" lucid as"command" "${@}"; }
 zload()    { zplugin load                           "${@}"; }
 zsnippet() { zplugin snippet                        "${@}"; }
-zsource()  { turbo2 if'[[ -n "${1}" ]]'; zplugin snippet "${1}"; }
 
 
 #################################################################
@@ -157,8 +156,6 @@ zplugin ice as"completion" if"[ -f '${HOME}/.zsh/completions/_my' ]" id-as"my";
 
 turbo0 as"completion" if"[ -f '${HOME}/.local/share/gist/gist.zsh' ]" id-as"gist" mv"gist.zsh -> _gist";
     zsnippet "${HOME}/.local/share/gist/gist.zsh"
-
-zsource "${HOME}/.local/bin/virtualenvwrapper_lazy.sh"
 
 
 #################################################################
