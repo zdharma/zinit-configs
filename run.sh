@@ -5,41 +5,44 @@ set -o pipefail  # catch errors in pipelines
 set -o nounset   # exit on undeclared variable
 # set -o xtrace    # trace execution
 
-# Directory of the script
-CURRENT_DIR=${0:a:h}
+# Folders containing `.zshrc`
+FOLDERS_WITH_ZSHRC=$(cd "${0:a:h}"; find * -name '.zshrc' -type f -exec dirname {} \;)
 
-# Choose folder with configuration
-# to test in docker
+# A fuzzy finder available
 if command -v fzy > /dev/null; then
-    FOLDER=$(set -- */; printf "%s\n" "${@%/}" | fzy)
+    FUZZY_FINDER=fzy
 elif command -v fzf > /dev/null; then
-    FOLDER=$(set -- */; printf "%s\n" "${@%/}" | fzf)
+    FUZZY_FINDER=fzf
 else
     echo 'No supported fuzzy finder found. Exiting!'
     exit 1
 fi
 
+# Folder to load, chosen by user
+FOLDER=$(${FUZZY_FINDER} <<< ${FOLDERS_WITH_ZSHRC})
+
 # Create a Dockerfile
 DOCKERFILE="Dockerfile"
-cat > "${CURRENT_DIR}/${DOCKERFILE}" <<END
+cat > "${0:a:h}/${DOCKERFILE}" <<END
 FROM ubuntu:18.04
 RUN apt update && \
-    apt install --yes zsh git curl python vim htop sudo
+    apt install --yes zsh git subversion curl build-essential python vim htop sudo
 
 RUN adduser --disabled-password --gecos '' user
 RUN adduser user sudo
 RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 USER user
 
-COPY ${FOLDER} /home/user
+RUN sh -c "\$(curl -fsSL https://raw.githubusercontent.com/zdharma/zplugin/master/doc/install.sh)"
+
+COPY --chown=user ${FOLDER} /home/user
 RUN TERM=${TERM} zsh -i -c -- '-zplg-scheduler burst || true'
 CMD zsh
 END
 
-
 # Build an image
-FOLDER_LOWERCASE=$( tr '[A-Z]' '[a-z]' <<< ${FOLDER})
-docker build -t "zplg-configs/${FOLDER_LOWERCASE}" .
+FOLDER_LOWERCASE=$(tr '[A-Z]' '[a-z]' <<< ${FOLDER})
+docker build -t "zplg-configs/${FOLDER_LOWERCASE}" "${0:a:h}"
 
 # Run a container
 docker run -ti "zplg-configs/${FOLDER_LOWERCASE}" env TERM="${TERM}" zsh
