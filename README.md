@@ -8,6 +8,7 @@
   - [OR ...](#or-)
 - [Submitting zshrc](#submitting-zshrc)
 - [The repository structure](#the-repository-structure)
+- [Executing config inside a docker container via zplugin](#executing-config-inside-a-docker-container-via-zplugin)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -41,3 +42,16 @@ You can either:
 
 The structure of the repository is very simple: in its main directory there are directories located, named after the user-names of the submitting users. In those directories there are the zshrc files that the user decided to share.
 
+# Executing config inside a docker container via zplugin
+
+```sh
+# Install fzf
+zplugin load junegunn/fzf-bin
+# or fzy
+zplugin ice make"!PREFIX=$ZPFX install" atclone"cp contrib/fzy-* $ZPFX/bin/" pick"$ZPFX/bin/fzy*"
+zplugin load jhawthorn/fzy
+
+# Then, install this repo
+zplugin ice cloneopts'--branch feature-run --single-branch'
+zplugin load zdharma/zplugin-configs
+```
