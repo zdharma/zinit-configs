@@ -3,7 +3,7 @@ FROM ubuntu:18.04
 # Update && install common dependencies
 RUN apt update && \
     apt install --yes ncurses-dev unzip zsh git subversion curl make python \
-                        vim htop sudo
+                        vim htop sudo golang-go
 
 # Add user
 RUN adduser --disabled-password --gecos '' user
