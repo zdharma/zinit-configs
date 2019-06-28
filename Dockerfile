@@ -13,6 +13,7 @@ USER user
 
 # Install Rust language
 RUN curl 'https://sh.rustup.rs' -sSf | sh -s -- -y
+RUN echo 'source $HOME/.cargo/env' > /home/user/.zshenv
 
 RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/zdharma/zplugin/master/doc/install.sh)"
 
