@@ -21,13 +21,17 @@ fi
 # Folder to load, chosen by user
 FOLDER=$(${FUZZY_FINDER} <<< ${FOLDERS_WITH_ZSHRC})
 
+# Addtiononal dependencies to install if dependencies file found
+[ -f "${0:a:h}/${FOLDER}/depedencies" ] && ADD_DEPENDENCIES=($(grep -v "#" ${0:a:h}/${FOLDER}/depedencies || true))
+
 # Create a Dockerfile
 DOCKERFILE="Dockerfile"
 cat > "${0:a:h}/${DOCKERFILE}" <<END
 FROM ubuntu:18.04
 RUN apt update && \
     apt install --yes ncurses-dev unzip zsh git subversion curl build-essential python \
-                        vim htop sudo golang-go cmake redis-server libhiredis-dev
+                        vim htop sudo golang-go cmake redis-server libhiredis-dev \
+                        ${ADD_DEPENDENCIES[@]:-}
 
 RUN adduser --disabled-password --gecos '' user
 RUN adduser user sudo
