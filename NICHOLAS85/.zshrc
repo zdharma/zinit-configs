@@ -99,7 +99,7 @@ z hlissner/zsh-autopair
 zt 0a blockf atpull'zplugin creinstall -q .'
 z zsh-users/zsh-completions
 
-zt 0a #'[[ $isdolphin != true ]]'
+zt '[[ $isdolphin != true ]]'
 z load desyncr/auto-ls
 
 zt 0c atload'bindkey "$terminfo[kcuu1]" history-substring-search-up; bindkey "$terminfo[kcud1]" history-substring-search-down'
