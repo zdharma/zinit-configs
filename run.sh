@@ -33,4 +33,4 @@ docker build \
     "${0:a:h}"
 
 # Run a container
-docker run -ti "zplg-configs/${FOLDER_LOWERCASE}" env TERM="${TERM}" zsh
+docker run -ti --rm "zplg-configs/${FOLDER_LOWERCASE}" env TERM="${TERM}" zsh
