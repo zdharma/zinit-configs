@@ -1,4 +1,7 @@
 #! zsh
+
+export XDG_CACHE_HOME=${XDG_CACHE_HOME:=~/.cache}
+
 typeset -A ZPLGM
 ZPLG_HOME=$XDG_CACHE_HOME/zsh/zplugin
 ZPLGM[HOME_DIR]=$ZPLG_HOME
