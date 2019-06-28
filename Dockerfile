@@ -1,8 +1,5 @@
 FROM ubuntu:18.04
 
-ARG FOLDER
-ARG TERM
-
 # Update && install common dependencies
 RUN apt update && \
     apt install --yes ncurses-dev unzip zsh git subversion curl make python \
@@ -17,6 +14,7 @@ USER user
 RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/zdharma/zplugin/master/doc/install.sh)"
 
 # Copy configs into home directory
+ARG FOLDER
 COPY --chown=user "${FOLDER}" /home/user
 # Copy of a possible .zshrc named according to a non-leading-dot scheme
 RUN cp -vf /home/user/zshrc.zsh /home/user/.zshrc 2>/dev/null || true
@@ -28,6 +26,7 @@ RUN if [ -f /home/user/bootstrap.sh ]; then \
     fi
 
 # Install all plugins
+ARG TERM
 RUN SHELL=/bin/zsh TERM="${TERM}" zsh -i -c -- '-zplg-scheduler burst || true'
 
 CMD TERM="${TERM}" zsh
