@@ -1,0 +1,177 @@
+#Let Atom highlight this: -*- shell-script -*-
+
+#########################
+#       Variables       #
+#########################
+
+HISTFILE="${HOME}/.histfile"
+
+ZSH_AUTOSUGGEST_USE_ASYNC=true
+ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE=50
+
+#colorlscommand=(lsd --group-dirs first)
+#colorlsgitcommand=(colorls --gs -A)
+
+#AUTO_LS_COMMANDS=(modecheck colorls)
+#AUTO_LS_COMMANDSBAT=(ls)
+AUTO_LS_NEWLINE=false
+
+EDITOR=kate
+
+rm_opts=(-I -v)
+
+# Directory checked for locally built projects (plugin updatelocal)
+UPDATELOCAL_GITDIR="${HOME}/github/Built"
+
+# Strings to ignore when using dotscheck, escape and single quote stuff that could be wild cards (../)
+dotsvar=( gtkrc-2.0 kwinrulesrc '\.\./' '\.config/gtk-3\.0/settings\.ini' )
+
+isdolphin=false
+# Export variables when connected via SSH
+if [[ -n $SSH_CONNECTION ]]; then
+    export DISPLAY=:0
+    #colorlscommand=(lsd --group-dirs first --icon never)
+    #AUTO_LS_COMMANDS=(colorls)
+else
+    # Used to programatically disable plugins when opening the terminal view in dolphin 
+    if [[ $(ps -ocommand= -p $PPID) =~ "dolphin" ]]; then
+        isdolphin=true
+    fi
+fi
+
+#########################
+#       Functions       #
+#########################
+
+# https://gist.github.com/ctechols/ca1035271ad134841284
+_zpcompinit_fast() {
+  setopt extendedglob local_options
+  autoload -Uz compinit
+  local zcd=${ZPLGM[ZCOMPDUMP_PATH]:-${ZDOTDIR:-$HOME}/.zcompdump}
+  local zcdc="$zcd.zwc"
+  # Compile the completion dump to increase startup speed, if dump is newer or doesn't exist,
+  # in the background as this is doesn't affect the current session
+  if [[ -f "$zcd"(#qN.m+1) ]]; then
+        compinit -i -d "$zcd"
+        { zcompile "$zcd" } &!
+  else
+        compinit -C -d "$zcd"
+        { [[ ! -f "$zcdc" || "$zcd" -nt "$zcdc" ]] && zcompile "$zcd" } &!
+  fi
+}
+
+# Shows top used commands
+history-stat(){ fc -ln 0 | awk '{print $1}' | sort | uniq -c | sort -nr | head; }
+
+auto-ls-modecheck(){
+    if ! [[ $(tlp-stat -s 2>/dev/null) =~ 'Mode           = AC' ]]; then
+        varcache=("${AUTO_LS_COMMANDS[@]}")
+        AUTO_LS_COMMANDS=("${AUTO_LS_COMMANDSBAT[@]}")
+        auto-ls
+        AUTO_LS_COMMANDS=("${varcache[@]}")
+        break
+    fi
+}
+
+auto-ls-colorls(){
+    if [ -d .git ] && ! [[ -n $SSH_CONNECTION ]]; then
+      eval "${colorlsgitcommand[@]}"
+      echo
+    else
+      eval "${colorlscommand[@]}"
+      echo
+    fi
+}
+
+dotscheck(){
+  local dotsvar1 dotsvar2 dotsvar3 dotsvar4
+  dots(){ /usr/bin/git --git-dir=$HOME/.dots/ --work-tree=$HOME "${@}" 2>/dev/null}
+  dotsvar1=("${dotsvar[@]/%/'}")
+  dotsvar2=("${dotsvar1[@]/#/-e '}")
+  dotsvar3=(grep -v "${dotsvar2[*]}")
+  dotsvar4=$(dots status | eval "${dotsvar3[*]}")
+  if [[ "$dotsvar4" =~ "Changes not staged" ]] && [[ "$dotsvar4" =~ "modified|Changes to be committed" ]]; then
+    echo ""
+    dots status -s
+  elif [[ "$dotsvar4" =~ "ahead of" ]]; then
+    dots status
+    dots push
+  elif [[ "$dotsvar4" =~ "is behind" ]]; then
+    dots status
+  fi
+}
+
+#########################
+#       Aliases         #
+#########################
+
+# Allows leaving from deleted directories
+alias ..='command .. 2>/dev/null || cd $(dirname $PWD)'
+
+# Access zsh config files
+alias zshconf='${=EDITOR} $ZPLGM[HOME_DIR]/user/theme $ZPLGM[HOME_DIR]/user/personal ${HOME}/.zshrc &!'
+
+alias "zshconfatom"='atom $ZPLGM[HOME_DIR]/user/theme $ZPLGM[HOME_DIR]/user/personal ${HOME}/.zshrc &!'
+
+# dot file management
+alias dots=' /usr/bin/git --git-dir=$HOME/.dots/ --work-tree=$HOME'
+#           ^Space added to remove this command from history
+
+# Aesthetic function for Dolphin, clear -x if cd while in Dolphin
+$isdolphin && alias cd='clear -x; cd'
+
+alias g='git'
+#alias ls='lsd --group-dirs=first'
+#alias apt="apt-fast"
+#alias open='xdg-open'
+# allow sudo to expand aliases (checkinstall for example) as well as run anything in $PATH
+alias sudo='sudo env PATH="$PATH:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"  '
+#alias checkinstall='checkinstall -D --pakdir=${HOME}/OneDrive/Linux/installed/debs/built'
+alias gencomp='echo "Use gcomp"'
+alias -- -='cd -'
+
+unalias zplg
+
+if [[ -n $SSH_CONNECTION ]]; then
+    #alias ls="lsd --group-dirs=first --icon=never"
+fi
+
+#########################
+#         Other         #
+#########################
+
+bindkey -e                  # EMACS bindings
+setopt append_history       # Allow multiple terminal sessions to all append to one zsh command history
+setopt hist_ignore_all_dups # delete old recorded entry if new entry is a duplicate.
+setopt no_beep              # don't beep on error
+setopt auto_cd              # If you type foo, and it isn't a command, and it is a directory in your cdpath, go there
+setopt multios              # perform implicit tees or cats when multiple redirections are attempted
+setopt prompt_subst         # enable parameter expansion, command substitution, and arithmetic expansion in the prompt
+setopt interactive_comments # Allow comments even in interactive shells (especially for Muness)
+setopt pushd_ignore_dups    # don't push multiple copies of the same directory onto the directory stack
+setopt auto_pushd           # make cd push the old directory onto the directory stack
+setopt pushdminus           # swapped the meaning of cd +1 and cd -1; we want them to mean the opposite of what they mean
+
+# Fuzzy matching of completions for when you mistype them:
+zstyle ':completion:*' completer _complete _match _approximate
+zstyle ':completion:*:match:*' original only
+zstyle -e ':completion:*:approximate:*' max-errors 'reply=($((($#PREFIX+$#SUFFIX)/3>7?7:($#PREFIX+$#SUFFIX)/3))numeric)'
+
+# Pretty completions
+zstyle ':completion:*:matches' group 'yes'
+zstyle ':completion:*:options' description 'yes'
+zstyle ':completion:*:options' auto-description '%d'
+zstyle ':completion:*:corrections' format ' %F{green}-- %d (errors: %e) --%f'
+zstyle ':completion:*:descriptions' format ' %F{yellow}-- %d --%f'
+zstyle ':completion:*:messages' format ' %F{purple} -- %d --%f'
+zstyle ':completion:*:warnings' format ' %F{red}-- no matches found --%f'
+zstyle ':completion:*:default' list-prompt '%S%M matches%s'
+zstyle ':completion:*' format ' %F{yellow}-- %d --%f'
+zstyle ':completion:*' group-name ''
+zstyle ':completion:*' verbose yes
+zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}' 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
+zstyle ':completion:*:functions' ignored-patterns '(_*|pre(cmd|exec))'
+zstyle ':completion:*' rehash true
+
+bindkey '^[[1;5C' forward-word   # [Ctrl-RightArrow] - move forward one word
+bindkey '^[[1;5D' backward-word  # [Ctrl-LeftArrow] - move backward one word

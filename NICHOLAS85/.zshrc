@@ -3,6 +3,14 @@
 # Install zplugin if not installed
 if [ ! -d "${HOME}/.zplugin" ]; then
     sh -c "$(curl -fsSL https://raw.githubusercontent.com/zdharma/zplugin/master/doc/install.sh)"
+    if [[ ! -d "$ZPFX" ]]; then
+    mkdir -v $ZPFX
+    fi
+    if [[ ! -d "$ZPLGM[HOME_DIR]/user" ]]; then
+    mkdir -v "$ZPLGM[HOME_DIR]/user"
+    curl -fsSL https://raw.githubusercontent.com/NICHOLAS85/dotfiles/master/.zplugin/user/personal -o "$ZPLGM[HOME_DIR]/user/personal"
+    curl -fsSL https://raw.githubusercontent.com/NICHOLAS85/dotfiles/master/.zplugin/user/theme -o "$ZPLGM[HOME_DIR]/user/theme"
+    fi
 fi
 
 ### Added by Zplugin's installer
@@ -11,53 +19,25 @@ autoload -Uz _zplugin
 (( ${+_comps} )) && _comps[zplugin]=_zplugin
 ### End of Zplugin's installer chunk
 
-HISTFILE="${HOME}/.histfile"
-bindkey -e                  # EMACS bindings
-setopt append_history       # Allow multiple terminal sessions to all append to one zsh command history
-setopt hist_ignore_all_dups # delete old recorded entry if new entry is a duplicate.
-setopt no_beep              # don't beep on error
-setopt auto_cd              # If you type foo, and it isn't a command, and it is a directory in your cdpath, go there
-setopt multios              # perform implicit tees or cats when multiple redirections are attempted
-setopt prompt_subst         # enable parameter expansion, command substitution, and arithmetic expansion in the prompt
-setopt interactive_comments # Allow comments even in interactive shells (especially for Muness)
-setopt pushd_ignore_dups    # don't push multiple copies of the same directory onto the directory stack
-setopt auto_pushd           # make cd push the old directory onto the directory stack
-setopt pushdminus           # swapped the meaning of cd +1 and cd -1; we want them to mean the opposite of what they mean
-
-# Fuzzy matching of completions for when you mistype them:
-zstyle ':completion:*' completer _complete _match _approximate
-zstyle ':completion:*:match:*' original only
-zstyle -e ':completion:*:approximate:*' max-errors 'reply=($((($#PREFIX+$#SUFFIX)/3>7?7:($#PREFIX+$#SUFFIX)/3))numeric)'
-
-bindkey '^[[1;5C' forward-word   # [Ctrl-RightArrow] - move forward one word
-bindkey '^[[1;5D' backward-word  # [Ctrl-LeftArrow] - move backward one word
-
 # Functions to make configuration less verbose
 zt() { zplugin ice wait"${1}" lucid               "${@:2}"; } # Turbo
 z()  { [ -z $2 ] && zplugin light "${@}" || zplugin "${@}"; } # zplugin
 
-# Oh-my-zsh libs
-z snippet OMZ::lib/history.zsh
+# Theme
+zt "" pick'spaceship.zsh' compile'{lib/*,sections/*,tests/*.zsh}' atload'source $ZPLGM[HOME_DIR]/user/theme'
+z denysdovhan/spaceship-prompt
 
-zt 0a
-z snippet OMZ::lib/git.zsh
+# Oh-my-zsh libs
+zt "" atinit'ZSH_CACHE_DIR="$HOME/.zcompcache"'
+z snippet OMZ::lib/history.zsh
 
 zt 0a
 z snippet OMZ::lib/completion.zsh
 
-# Theme
-zt "" pick'spaceship.zsh' blockf
-z denysdovhan/spaceship-prompt
-
 # Plugins
-#zt "" atload'ZSH_EVALCACHE_DIR="$PWD/.zsh-evalcache"'
-#z mroth/evalcache
 
 zt 0b atclone"git reset --hard; sed -i '/DIR/c\DIR                   34;5;30' LS_COLORS; dircolors -b LS_COLORS > c.zsh" atpull'%atclone' pick"c.zsh" nocompile'!'
 z trapd00r/LS_COLORS
-
-zt 0a svn blockf atload'unalias grv'
-z snippet OMZ::plugins/git
 
 zt 0a has'systemctl'
 z snippet OMZ::plugins/systemd/systemd.plugin.zsh
@@ -65,7 +45,7 @@ z snippet OMZ::plugins/systemd/systemd.plugin.zsh
 zt 0a
 z snippet OMZ::plugins/extract/extract.plugin.zsh
 
-zt 0b
+zt 0b compile'{hsmw-*,test/*}'
 z zdharma/history-search-multi-word
 
 zt 0b
@@ -84,7 +64,7 @@ z wfxr/forgit
 zt 0b has'git' pick'init.zsh' atload'alias gi="git-ignore"' blockf
 z laggardkernel/git-ignore
 
-zt 0a as'program' pick'wd.sh' mv'_wd.sh -> _wd' atload'wd() { source wd.sh }; WD_CONFIG="$PWD/.warprc"' blockf
+zt 0a as'program' atpull'!git reset --hard' pick'wd.sh' mv'_wd.sh -> _wd' atload'wd() { source wd.sh }; WD_CONFIG="$ZPFX/.warprc"' blockf
 z mfaerevaag/wd
 
 zt 0a as'command' pick'updatelocal' atload'updatelocal() { source updatelocal }'
@@ -94,7 +74,8 @@ zt '[[ -n ${ZLAST_COMMANDS[(r)gcom*]} ]]' atload'gcomp(){ \gencomp $1 && zplugin
 z RobSis/zsh-completion-generator
 #loaded when needed via gcomp
 
-zt 0b as'program' pick'rm-trash/rm-trash' atclone"git reset --hard; sed -i '2 i [[ \$EUID = 0 ]] && { echo \"Root detected, running builtin rm\"; command rm -I -v \"\${@}\"; exit; }' rm-trash/rm-trash" atpull'%atclone' atload'alias rm="rm-trash ${rm_opts}"'
+zt 0b as'program' pick'rm-trash/rm-trash' atclone"git reset --hard; sed -i '2 i [[ \$EUID = 0 ]] && { echo \"Root detected, running builtin rm\"; command rm -I -v \"\${@}\"; exit; }' rm-trash/rm-trash" atpull'%atclone' atload'alias rm="rm-trash ${rm_opts}"' \
+compile'rm-trash/rm-trash' nocompile'!'
 z nateshmbhat/rm-trash
 
 zt 0b has'thefuck' trackbinds bindmap'\e\e -> ^[OP^[OP' pick'init.zsh'
@@ -112,24 +93,25 @@ z snippet OMZ::plugins/common-aliases/common-aliases.plugin.zsh
 zt 0a as'program' pick'bin/git-dsf'
 z zdharma/zsh-diff-so-fancy
 
-zt 0b
+zt 0b nocompletions
 z hlissner/zsh-autopair
 
-zt 0a blockf
+zt 0a blockf atpull'zplugin creinstall -q .'
 z zsh-users/zsh-completions
 
-zt '[[ $isdolphin = false ]]'
+zt 0a #'[[ $isdolphin != true ]]'
 z load desyncr/auto-ls
-
-zt 0c pick'manydots-magic'
-z knu/zsh-manydots-magic
-
 
 zt 0c atload'bindkey "$terminfo[kcuu1]" history-substring-search-up; bindkey "$terminfo[kcud1]" history-substring-search-down'
 z zsh-users/zsh-history-substring-search
 
-zt 0a atload'_zsh_autosuggest_start'
+zt 0b compile'{src/*.zsh,src/strategies/*}' atload'_zsh_autosuggest_start' 
 z zsh-users/zsh-autosuggestions
+
+zt 0b pick'manydots-magic' compile'manydots-magic'
+z knu/zsh-manydots-magic
+
+source "$ZPLGM[HOME_DIR]/user/personal"
 
 zt 0b atinit'_zpcompinit_fast; zpcdreplay'
 z zdharma/fast-syntax-highlighting
@@ -137,9 +119,4 @@ z zdharma/fast-syntax-highlighting
 zt 0c id-as'Cleanup' atinit'unset -f zt z'
 z zdharma/null 
 
-
-source "${HOME}/.zplugin/user/variables"
-source "${HOME}/.zplugin/user/aliases"
-source "${HOME}/.zplugin/user/functions"
-
-dotscheck
+#dotscheck
