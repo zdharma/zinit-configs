@@ -9,11 +9,11 @@ HISTFILE="${HOME}/.histfile"
 ZSH_AUTOSUGGEST_USE_ASYNC=true
 ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE=50
 
-#colorlscommand=(lsd --group-dirs first)
-#colorlsgitcommand=(colorls --gs -A)
+colorlscommand=(lsd --group-dirs first)
+colorlsgitcommand=(colorls --gs -A)
 
-#AUTO_LS_COMMANDS=(modecheck colorls)
-#AUTO_LS_COMMANDSBAT=(ls)
+AUTO_LS_COMMANDS=(modecheck colorls)
+AUTO_LS_COMMANDSBAT=(ls)
 AUTO_LS_NEWLINE=false
 
 EDITOR=kate
@@ -30,8 +30,8 @@ isdolphin=false
 # Export variables when connected via SSH
 if [[ -n $SSH_CONNECTION ]]; then
     export DISPLAY=:0
-    #colorlscommand=(lsd --group-dirs first --icon never)
-    #AUTO_LS_COMMANDS=(colorls)
+    colorlscommand=(lsd --group-dirs first --icon never)
+    AUTO_LS_COMMANDS=(colorls)
 else
     # Used to programatically disable plugins when opening the terminal view in dolphin 
     if [[ $(ps -ocommand= -p $PPID) =~ "dolphin" ]]; then
@@ -64,7 +64,7 @@ _zpcompinit_fast() {
 history-stat(){ fc -ln 0 | awk '{print $1}' | sort | uniq -c | sort -nr | head; }
 
 auto-ls-modecheck(){
-    if ! [[ $(tlp-stat -s 2>/dev/null) =~ 'Mode           = AC' ]]; then
+    if [[ $(tlp-stat -s 2>/dev/null) =~ 'Mode           = Battery' ]]; then 
         varcache=("${AUTO_LS_COMMANDS[@]}")
         AUTO_LS_COMMANDS=("${AUTO_LS_COMMANDSBAT[@]}")
         auto-ls
@@ -121,7 +121,7 @@ alias dots=' /usr/bin/git --git-dir=$HOME/.dots/ --work-tree=$HOME'
 $isdolphin && alias cd='clear -x; cd'
 
 alias g='git'
-#alias ls='lsd --group-dirs=first'
+alias ls='lsd --group-dirs=first'
 #alias apt="apt-fast"
 #alias open='xdg-open'
 # allow sudo to expand aliases (checkinstall for example) as well as run anything in $PATH
@@ -133,7 +133,7 @@ alias -- -='cd -'
 unalias zplg
 
 if [[ -n $SSH_CONNECTION ]]; then
-    #alias ls="lsd --group-dirs=first --icon=never"
+    alias ls="lsd --group-dirs=first --icon=never"
 fi
 
 #########################
