@@ -11,6 +11,9 @@ RUN adduser user sudo
 RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 USER user
 
+# Install Rust language
+RUN curl 'https://sh.rustup.rs' -sSf | sh -s -- -y
+
 RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/zdharma/zplugin/master/doc/install.sh)"
 
 # Copy configs into home directory
