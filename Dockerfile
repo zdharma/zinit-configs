@@ -21,9 +21,11 @@ COPY --chown=user "${FOLDER}" /home/user
 # Copy of a possible .zshrc named according to a non-leading-dot scheme
 RUN cp -vf /home/user/zshrc.zsh /home/user/.zshrc 2>/dev/null || true
 
-# For zdharma/zredis
-RUN chmod u+x /home/user/bootstrap.sh && \
-    /home/user/bootstrap.sh
+# Run user's bootstrap script
+RUN if [ -f /home/user/bootstrap.sh ]; then \
+        chmod u+x /home/user/bootstrap.sh; \
+        /home/user/bootstrap.sh; \
+    fi
 
 # Install all plugins
 RUN SHELL=/bin/zsh TERM="${TERM}" zsh -i -c -- '-zplg-scheduler burst || true'
