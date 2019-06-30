@@ -1,20 +1,32 @@
 FROM ubuntu:18.04
 
 # Update && install common dependencies
+ARG DEBIAN_FRONTEND=noninteractive
 RUN apt update && \
-    apt install --yes ncurses-dev unzip zsh git subversion curl make python \
-                        vim htop sudo golang-go
+    apt install -yq \
+        ncurses-dev unzip zsh git subversion curl make sudo locales \
+        python golang-go \
+        vim htop
+
+# Set the locale
+RUN sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && \
+    locale-gen
+ENV LANG en_US.UTF-8
+ENV LANGUAGE en_US:en
+ENV LC_ALL en_US.UTF-8
 
 # Add user
-RUN adduser --disabled-password --gecos '' user
-RUN adduser user sudo
-RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
+RUN adduser --disabled-password --gecos '' user         && \
+    adduser user sudo                                   && \
+    echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers && \
+    usermod --shell /bin/zsh user
 USER user
 
 # Install Rust language
-RUN curl 'https://sh.rustup.rs' -sSf | sh -s -- -y
-RUN echo 'source $HOME/.cargo/env' > /home/user/.zshenv
+RUN curl 'https://sh.rustup.rs' -sSf | sh -s -- -y  && \
+    echo 'source ${HOME}/.cargo/env' > /home/user/.zshenv
 
+# Install zplugin
 RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/zdharma/zplugin/master/doc/install.sh)"
 
 # Copy configs into home directory
@@ -31,6 +43,7 @@ RUN if [ -f /home/user/bootstrap.sh ]; then \
 
 # Install all plugins
 ARG TERM
-RUN SHELL=/bin/zsh TERM="${TERM}" zsh -i -c -- '-zplg-scheduler burst || true'
+ENV TERM ${TERM}
+RUN SHELL=/bin/zsh zsh -i -c -- '-zplg-scheduler burst || true'
 
-CMD TERM="${TERM}" zsh
+CMD zsh
