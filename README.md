@@ -89,6 +89,3 @@ zplugin-configs
 ```
 
 Now you will have to wait for a few minutes, while the required environment is being installed into the docker image. The next time you will want to try a configuration, loading it will take less time.
-
-
-
