@@ -8,7 +8,9 @@
   - [OR ...](#or-)
 - [Submitting zshrc](#submitting-zshrc)
 - [The repository structure](#the-repository-structure)
-- [Executing config inside a docker container via zplugin](#executing-config-inside-a-docker-container-via-zplugin)
+- [Try configurations with docker](try-configurations-with-docker)
+- [Requirements](requirements)
+- [Running a configuration](running-a-configuration)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -42,8 +44,19 @@ You can either:
 
 The structure of the repository is very simple: in its main directory there are directories located, named after the user-names of the submitting users. In those directories there are the zshrc files that the user decided to share.
 
-# Executing config inside a docker container via zplugin
+# Try configurations with docker
 
+## Requirements
+
+You should have [docker](https://docs.docker.com/install/) and `zsh` installed to use this functionality.
+Check you have them present on your system:
+```sh
+docker version
+zsh --version
+```
+
+The other dependency is interactive filter. You should have either [fzf](https://github.com/junegunn/fzf) or [fzy](https://github.com/jhawthorn/fzy) in your `$PATH`.
+You might choose to install any of them via zplugin:
 ```sh
 # Install fzf
 zplugin ice from"gh-r" as"command"
@@ -53,10 +66,29 @@ zplugin ice as"command" make"\!PREFIX=$ZPFX install" \
     atclone"cp contrib/fzy-* $ZPFX/bin/" \
     pick"$ZPFX/bin/fzy*"
 zplugin load jhawthorn/fzy
+```
 
+Keep in mind you will need a few Gb of free space to store docker images.
+
+## Running a configuration
+
+To try a configuration, you have to clone this repository and execute a `run.sh` script:
+```sh
+# Clone repository with configurations
+git clone 'https://github.com/zdharma/zplugin-configs'
+# Run the configuration picker
+./zplugin-configs/run.sh
+```
+
+... or you can install this repository as a `zsh` plugin!
+```sh
 # Then, install this repo
 zplugin load zdharma/zplugin-configs
-
 # Run the command
 zplugin-configs
 ```
+
+Now you will have to wait for a few minutes, while the required environment is being installed into the docker image. The next time you will want to try a configuration, loading it will take less time.
+
+
+
