@@ -8,7 +8,7 @@
   - [OR ...](#or-)
 - [Submitting zshrc](#submitting-zshrc)
 - [The repository structure](#the-repository-structure)
-  - [Try configurations with docker](#try-configurations-with-docker)
+- [Try configurations with docker](#try-configurations-with-docker)
   - [Requirements](#requirements)
   - [Running a configuration](#running-a-configuration)
 
