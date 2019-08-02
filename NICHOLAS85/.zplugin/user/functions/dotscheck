@@ -1,0 +1,17 @@
+ if [ -d $HOME/.dots ]; then
+  local dotsvar1 dotsvar2 dotsvar3 dotsvar4
+  dots(){ /usr/bin/git --git-dir=$HOME/.dots/ --work-tree=$HOME "${@}" 2>/dev/null}
+  dotsvar1=("${dotsvar[@]/%/'}")
+  dotsvar2=("${dotsvar1[@]/#/-e '}")
+  dotsvar3=(grep -v "${dotsvar2[*]}")
+  dotsvar4=$(dots status | eval "${dotsvar3[*]}")
+  if [[ "$dotsvar4" =~ "Changes not staged" ]] && [[ "$dotsvar4" =~ "modified|Changes to be committed" ]]; then
+    echo ""
+    dots status -s
+  elif [[ "$dotsvar4" =~ "ahead of" ]]; then
+    dots status
+    dots push
+  elif [[ "$dotsvar4" =~ "is behind" ]]; then
+    dots status
+  fi
+fi

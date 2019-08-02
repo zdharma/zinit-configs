@@ -3,14 +3,6 @@
 # Install zplugin if not installed
 if [ ! -d "${HOME}/.zplugin" ]; then
     sh -c "$(curl -fsSL https://raw.githubusercontent.com/zdharma/zplugin/master/doc/install.sh)"
-    if [[ ! -d "$ZPFX" ]]; then
-    mkdir -v $ZPFX
-    fi
-    if [[ ! -d "$ZPLGM[HOME_DIR]/user" ]]; then
-    mkdir -v "$ZPLGM[HOME_DIR]/user"
-    curl -fsSL https://raw.githubusercontent.com/NICHOLAS85/dotfiles/master/.zplugin/user/personal -o "$ZPLGM[HOME_DIR]/user/personal"
-    curl -fsSL https://raw.githubusercontent.com/NICHOLAS85/dotfiles/master/.zplugin/user/theme -o "$ZPLGM[HOME_DIR]/user/theme"
-    fi
 fi
 
 ### Added by Zplugin's installer
@@ -19,22 +11,38 @@ autoload -Uz _zplugin
 (( ${+_comps} )) && _comps[zplugin]=_zplugin
 ### End of Zplugin's installer chunk
 
+if [[ ! -d "$ZPFX" ]]; then
+    mkdir -v $ZPFX
+fi
+if [[ ! -d "$ZPLGM[HOME_DIR]/user" ]]; then
+    curl https://codeload.github.com/NICHOLAS85/dotfiles/tar.gz/master | \
+  tar -xz --strip=2 dotfiles-master/.zplugin/user; mv user "$ZPLGM[HOME_DIR]/"
+fi
+
+# Autoload personal functions
+fpath=("$ZPLGM[HOME_DIR]/user/functions" "${fpath[@]}")
+autoload -Uz _zpcompinit_fast auto-ls-colorls auto-ls-modecheck dotscheck history-stat
+
 # Functions to make configuration less verbose
 zt() { zplugin ice wait"${1}" lucid               "${@:2}"; } # Turbo
+zi() { zplugin ice lucid                            "${@}"; } # Regular Ice
 z()  { [ -z $2 ] && zplugin light "${@}" || zplugin "${@}"; } # zplugin
 
 # Theme
-zt "" pick'spaceship.zsh' compile'{lib/*,sections/*,tests/*.zsh}' atload'source $ZPLGM[HOME_DIR]/user/theme'
+zi pick'spaceship.zsh' compile'{lib/*,sections/*,tests/*.zsh}' atload'source $ZPLGM[HOME_DIR]/user/theme'
 z denysdovhan/spaceship-prompt
 
 # Oh-my-zsh libs
-zt "" atinit'ZSH_CACHE_DIR="$HOME/.zcompcache"'
+zi atinit'ZSH_CACHE_DIR="$HOME/.zcompcache"'
 z snippet OMZ::lib/history.zsh
 
 zt 0a
 z snippet OMZ::lib/completion.zsh
 
 # Plugins
+
+#zi atload'ZSH_EVALCACHE_DIR="$ZPFX/.zsh-evalcache"'
+#z mroth/evalcache
 
 zt 0b atclone"git reset --hard; sed -i '/DIR/c\DIR                   34;5;30' LS_COLORS; dircolors -b LS_COLORS > c.zsh" atpull'%atclone' pick"c.zsh" nocompile'!'
 z trapd00r/LS_COLORS
@@ -67,7 +75,7 @@ z laggardkernel/git-ignore
 zt 0a as'program' atpull'!git reset --hard' pick'wd.sh' mv'_wd.sh -> _wd' atload'wd() { source wd.sh }; WD_CONFIG="$ZPFX/.warprc"' blockf
 z mfaerevaag/wd
 
-zt 0a as'command' pick'updatelocal' atload'updatelocal() { source updatelocal }'
+zt 0a ver'plugin'
 z NICHOLAS85/updatelocal
 
 zt '[[ -n ${ZLAST_COMMANDS[(r)gcom*]} ]]' atload'gcomp(){ \gencomp $1 && zplugin creinstall -q RobSis/zsh-completion-generator; }' pick'zsh-completion-generator.plugin.zsh'
@@ -93,7 +101,7 @@ z snippet OMZ::plugins/common-aliases/common-aliases.plugin.zsh
 zt 0a as'program' pick'bin/git-dsf'
 z zdharma/zsh-diff-so-fancy
 
-zt 0b nocompletions
+zt 0b pick'autopair.zsh' nocompletions
 z hlissner/zsh-autopair
 
 zt 0a blockf atpull'zplugin creinstall -q .'
@@ -111,12 +119,13 @@ z zsh-users/zsh-autosuggestions
 zt 0b pick'manydots-magic' compile'manydots-magic'
 z knu/zsh-manydots-magic
 
-source "$ZPLGM[HOME_DIR]/user/personal"
-
 zt 0b atinit'_zpcompinit_fast; zpcdreplay'
 z zdharma/fast-syntax-highlighting
 
 zt 0c id-as'Cleanup' atinit'unset -f zt z'
-z zdharma/null 
+z zdharma/null
 
-#dotscheck
+source "$ZPLGM[HOME_DIR]/user/personal"
+
+dotscheck
+

@@ -1,0 +1,7 @@
+if [[ $(tlp-stat -s 2>/dev/null) =~ 'Mode           = Battery' ]]; then 
+    varcache=("${AUTO_LS_COMMANDS[@]}")
+    AUTO_LS_COMMANDS=("${AUTO_LS_COMMANDSBAT[@]}")
+    auto-ls
+    AUTO_LS_COMMANDS=("${varcache[@]}")
+    break
+fi

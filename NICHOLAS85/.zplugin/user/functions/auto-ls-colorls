@@ -1,0 +1,7 @@
+if [ -d .git ] && ! [[ -n $SSH_CONNECTION ]]; then
+  eval "${colorlsgitcommand[@]}"
+  echo
+else
+  eval "${colorlscommand[@]}"
+  echo
+fi 
