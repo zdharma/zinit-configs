@@ -1,6 +1,5 @@
 # https://github.com/NICHOLAS85/dotfiles/blob/xps_13_9365/.zshrc
 
-
 # Install zplugin if not installed
 if [ ! -d "${HOME}/.zplugin" ]; then
     sh -c "$(curl -fsSL https://raw.githubusercontent.com/zdharma/zplugin/master/doc/install.sh)"
