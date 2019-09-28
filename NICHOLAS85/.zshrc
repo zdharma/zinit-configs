@@ -1,9 +1,13 @@
-# https://github.com/NICHOLAS85/dotfiles/blob/master/.zshrc
+# https://github.com/NICHOLAS85/dotfiles/blob/xps_13_9365/.zshrc
+
 
 # Install zplugin if not installed
 if [ ! -d "${HOME}/.zplugin" ]; then
     sh -c "$(curl -fsSL https://raw.githubusercontent.com/zdharma/zplugin/master/doc/install.sh)"
 fi
+
+module_path+=( "/home/nicholas/.zplugin/bin/zmodules/Src" )
+zmodload zdharma/zplugin
 
 ### Added by Zplugin's installer
 source "${HOME}/.zplugin/bin/zplugin.zsh"
@@ -15,8 +19,8 @@ if [[ ! -d "$ZPFX" ]]; then
     mkdir -v $ZPFX
 fi
 if [[ ! -d "$ZPLGM[HOME_DIR]/user" ]]; then
-    curl https://codeload.github.com/NICHOLAS85/dotfiles/tar.gz/master | \
-  tar -xz --strip=2 dotfiles-master/.zplugin/user; mv user "$ZPLGM[HOME_DIR]/"
+    curl https://codeload.github.com/NICHOLAS85/dotfiles/tar.gz/xps_13_9365 | \
+    tar -xz --strip=2 dotfiles-xps_13_9365/.zplugin/user; mv user "$ZPLGM[HOME_DIR]/"
 fi
 
 # Autoload personal functions
@@ -24,17 +28,15 @@ fpath=("$ZPLGM[HOME_DIR]/user/functions" "${fpath[@]}")
 autoload -Uz _zpcompinit_fast auto-ls-colorls auto-ls-modecheck dotscheck history-stat
 
 # Functions to make configuration less verbose
-zt() { zplugin ice wait"${1}" lucid               "${@:2}"; } # Turbo
-zi() { zplugin ice lucid                            "${@}"; } # Regular Ice
+zt() { zplugin ice lucid ${1/#[0-9][a-c]/wait"$1"}            "${@:2}"; } # Smart Turbo
 z()  { [ -z $2 ] && { zplugin light "${@}"; ((1)); } || zplugin "${@}"; } # zplugin
 
-
 # Theme
-zi pick'spaceship.zsh' compile'{lib/*,sections/*,tests/*.zsh}' atload'source $ZPLGM[HOME_DIR]/user/theme'
+zt pick'spaceship.zsh' compile'{lib/*,sections/*,tests/*.zsh}' atload'source $ZPLGM[HOME_DIR]/user/theme'
 z denysdovhan/spaceship-prompt
 
 # Oh-my-zsh libs
-zi atinit'ZSH_CACHE_DIR="$HOME/.zcompcache"'
+zt atinit'ZSH_CACHE_DIR="$HOME/.zcompcache"'
 z snippet OMZ::lib/history.zsh
 
 zt 0a
@@ -42,10 +44,10 @@ z snippet OMZ::lib/completion.zsh
 
 # Plugins
 
-#zi atload'ZSH_EVALCACHE_DIR="$ZPFX/.zsh-evalcache"'
+#zt atload'ZSH_EVALCACHE_DIR="$ZPFX/.zsh-evalcache"'
 #z mroth/evalcache
 
-zt 0b atclone"git reset --hard; sed -i '/DIR/c\DIR                   34;5;30' LS_COLORS; dircolors -b LS_COLORS > c.zsh" atpull'%atclone' pick"c.zsh" nocompile'!'
+zt 0b atclone"sed -i '/DIR/c\DIR                   34;5;30' LS_COLORS; dircolors -b LS_COLORS > c.zsh" atpull'%atclone' pick"c.zsh" nocompile'!' reset
 z trapd00r/LS_COLORS
 
 zt 0a has'systemctl'
@@ -63,28 +65,28 @@ z ael-code/zsh-colored-man-pages
 zt 0a make
 z sei40kr/zsh-fast-alias-tips
 
-zt 0b has'git' as'command'
+zt wait'[[ -n ${ZLAST_COMMANDS[(r)g*]} ]]' has'git' as'command'
 z paulirish/git-open
 
-zt 0b has'git'
+zt wait'[[ -n ${ZLAST_COMMANDS[(r)g*]} ]]' has'git'
 z wfxr/forgit
 #replaced gi with local git-ignore plugin
 
-zt 0b has'git' pick'init.zsh' atload'alias gi="git-ignore"' blockf
+zt wait'[[ -n ${ZLAST_COMMANDS[(r)g*]} ]]' has'git' pick'init.zsh' atload'alias gi="git-ignore"' blockf
 z laggardkernel/git-ignore
 
-zt 0a as'program' atpull'!git reset --hard' pick'wd.sh' mv'_wd.sh -> _wd' atload'wd() { source wd.sh }; WD_CONFIG="$ZPFX/.warprc"' blockf
+zt 0a as'program' pick'wd.sh' mv'_wd.sh -> _wd' atload'wd() { source wd.sh }; WD_CONFIG="$ZPFX/.warprc"' blockf reset
 z mfaerevaag/wd
 
 zt 0a ver'plugin'
 z NICHOLAS85/updatelocal
 
-zt '[[ -n ${ZLAST_COMMANDS[(r)gcom*]} ]]' atload'gcomp(){ \gencomp $1 && zplugin creinstall -q RobSis/zsh-completion-generator; }' pick'zsh-completion-generator.plugin.zsh'
+zt wait'[[ -n ${ZLAST_COMMANDS[(r)gcom*]} ]]' atload'gcomp(){ \gencomp $1 && zplugin creinstall -q RobSis/zsh-completion-generator; }' pick'zsh-completion-generator.plugin.zsh'
 z RobSis/zsh-completion-generator
 #loaded when needed via gcomp
 
-zt 0b as'program' pick'rm-trash/rm-trash' atclone"git reset --hard; sed -i '2 i [[ \$EUID = 0 ]] && { echo \"Root detected, running builtin rm\"; command rm -I -v \"\${@}\"; exit; }' rm-trash/rm-trash" atpull'%atclone' atload'alias rm="rm-trash ${rm_opts}"' \
-compile'rm-trash/rm-trash' nocompile'!'
+zt 0b as'program' pick'rm-trash/rm-trash' atclone"sed -i '2 i [[ \$EUID = 0 ]] && { echo \"Root detected, running builtin rm\"; command rm -I -v \"\${@}\"; exit; }' rm-trash/rm-trash" atpull'%atclone' atload'alias rm="rm-trash ${rm_opts}"' \
+compile'rm-trash/rm-trash' nocompile'!' reset
 z nateshmbhat/rm-trash
 
 zt 0b has'thefuck' trackbinds bindmap'\e\e -> ^[OP^[OP' pick'init.zsh'
@@ -108,14 +110,14 @@ z hlissner/zsh-autopair
 zt 0a blockf atpull'zplugin creinstall -q .'
 z zsh-users/zsh-completions
 
-zt '[[ $isdolphin != true ]]'
+zt wait'[[ $isdolphin != true ]]'
 z load desyncr/auto-ls
 
 zt 0c atload'bindkey "$terminfo[kcuu1]" history-substring-search-up; bindkey "$terminfo[kcud1]" history-substring-search-down'
 z zsh-users/zsh-history-substring-search
 
-zt 0b compile'{src/*.zsh,src/strategies/*}' atload'_zsh_autosuggest_start' 
-z zsh-users/zsh-autosuggestions
+zt 0b compile'{src/*.zsh,src/strategies/*}' atload'!_zsh_autosuggest_start'
+z load zsh-users/zsh-autosuggestions
 
 zt 0b pick'manydots-magic' compile'manydots-magic'
 z knu/zsh-manydots-magic

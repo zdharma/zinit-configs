@@ -60,13 +60,13 @@ $isdolphin && alias cd='clear -x; cd'
 
 alias g='git'
 alias ls='lsd --group-dirs=first'
-#alias apt="apt-fast"
 #alias open='xdg-open'
-# allow sudo to expand aliases (checkinstall for example) as well as run anything in $PATH
+# allow sudo to expand aliases as well as run anything in $PATH
 alias sudo='sudo env PATH="$PATH:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"  '
-#alias checkinstall='checkinstall -D --pakdir=${HOME}/OneDrive/Linux/installed/debs/built'
 alias gencomp='echo "Use gcomp"'
 alias -- -='cd -'
+alias atom='atom-beta --disable-gpu'
+alias apm='apm-beta'
 
 unalias zplg
 
@@ -112,4 +112,4 @@ zstyle ':completion:*:functions' ignored-patterns '(_*|pre(cmd|exec))'
 zstyle ':completion:*' rehash true
 
 bindkey '^[[1;5C' forward-word   # [Ctrl-RightArrow] - move forward one word
-bindkey '^[[1;5D' backward-word  # [Ctrl-LeftArrow] - move backward one word
+bindkey '^[[1;5D' backward-word  # [Ctrl-LeftArrow]  - move backward one word
