@@ -1,4 +1,7 @@
 #!/usr/bin/env zsh
 
-sudo apt install --yes lua5.3
-cargo install exa
+# for zsh history
+mkdir -p $HOME/.cache/
+
+# useful command line apps
+brew install exa fzf
