@@ -78,7 +78,7 @@ z laggardkernel/git-ignore
 zt 0a as'program' pick'wd.sh' mv'_wd.sh -> _wd' atload'wd() { source wd.sh }; WD_CONFIG="$ZPFX/.warprc"' blockf reset
 z mfaerevaag/wd
 
-zt 0a ver'plugin'
+zt 0a
 z NICHOLAS85/updatelocal
 
 zt wait'[[ -n ${ZLAST_COMMANDS[(r)gcom*]} ]]' atload'gcomp(){ \gencomp $1 && zplugin creinstall -q RobSis/zsh-completion-generator; }' pick'zsh-completion-generator.plugin.zsh'
