@@ -1,5 +1,17 @@
 #Let Atom highlight this: -*- shell-script -*-
 
+# According to the Zsh Plugin Standard:
+# http://zdharma.org/Zsh-100-Commits-Club/Zsh-Plugin-Standard.html
+
+0="${${ZERO:-${0:#$ZSH_ARGZERO}}:-${(%):-%N}}"
+0="${${(M)0:#/*}:-$PWD/$0}"
+
+# Then ${0:h} to get plugin's directory
+
+# Autoload personal functions
+fpath=("${0:h}/functions" "${fpath[@]}")
+autoload -Uz _zpcompinit_fast auto-ls-colorls auto-ls-modecheck dotscheck history-stat
+
 #########################
 #       Variables       #
 #########################
@@ -9,14 +21,20 @@ HISTFILE="${HOME}/.histfile"
 ZSH_AUTOSUGGEST_USE_ASYNC=true
 ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE=50
 
-colorlscommand=(lsd --group-dirs first)
-colorlsgitcommand=(colorls --gs -A)
+HISTORY_SUBSTRING_SEARCH_FUZZY=set
 
-AUTO_LS_COMMANDS=(modecheck colorls)
-AUTO_LS_COMMANDSBAT=(ls)
+colorlscommand=(lsd --group-dirs first)
+colorlsgitcommand=(colorls --sd --gs -A)
+
+AUTO_LS_COMMANDS=(colorls)
+#AUTO_LS_COMMANDSBAT=(ls)
 AUTO_LS_NEWLINE=false
 
 EDITOR=kate
+
+forgit_ignore="/dev/null"
+
+WD_CONFIG="${ZPFX}/warprc"
 
 rm_opts=(-I -v)
 
@@ -26,17 +44,22 @@ UPDATELOCAL_GITDIR="${HOME}/github/Built"
 # Strings to ignore when using dotscheck, escape and single quote stuff that could be wild cards (../)
 dotsvar=( gtkrc-2.0 kwinrulesrc '\.\./' '\.config/gtk-3\.0/settings\.ini' )
 
-isdolphin=false
 # Export variables when connected via SSH
 if [[ -n $SSH_CONNECTION ]]; then
     export DISPLAY=:0
     colorlscommand=(lsd --group-dirs first --icon never)
-    AUTO_LS_COMMANDS=(colorls)
+    alias ls="lsd --group-dirs=first --icon=never"
 else
-    # Used to programatically disable plugins when opening the terminal view in dolphin 
-    if [[ $(ps -ocommand= -p $PPID) =~ "dolphin" ]]; then
-        isdolphin=true
-    fi
+    alias ls='lsd --group-dirs=first'
+fi
+
+# Used to programatically disable plugins when opening the terminal view in dolphin 
+if [[ $MYPROMPT = dolphin ]]; then
+    isdolphin=true
+    # Aesthetic function for Dolphin, clear -x if cd while in Dolphin
+    alias cd='clear -x; cd'
+else
+    isdolphin=false
 fi
 
 #########################
@@ -47,20 +70,16 @@ fi
 alias ..='command .. 2>/dev/null || cd $(dirname $PWD)'
 
 # Access zsh config files
-alias zshconf='${=EDITOR} $ZPLGM[HOME_DIR]/user/theme $ZPLGM[HOME_DIR]/user/personal ${HOME}/.zshrc &!'
+alias zshconf="${=EDITOR} ${HOME}/.zshrc ${0:h}/config-files.plugin.zsh ${0:h}/themes/\${MYPROMPT} &!"
 
-alias "zshconfatom"='atom $ZPLGM[HOME_DIR]/user/theme $ZPLGM[HOME_DIR]/user/personal ${HOME}/.zshrc &!'
+alias zshconfatom="atom ${HOME}/.zshrc ${0:h}/config-files.plugin.zsh ${0:h}/themes/\${MYPROMPT} &!"
 
 # dot file management
 alias dots=' /usr/bin/git --git-dir=$HOME/.dots/ --work-tree=$HOME'
 #           ^Space added to remove this command from history
 
-# Aesthetic function for Dolphin, clear -x if cd while in Dolphin
-$isdolphin && alias cd='clear -x; cd'
-
 alias g='git'
-alias ls='lsd --group-dirs=first'
-#alias open='xdg-open'
+alias open='xdg-open'
 # allow sudo to expand aliases as well as run anything in $PATH
 alias sudo='sudo env PATH="$PATH:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"  '
 alias gencomp='echo "Use gcomp"'
@@ -69,10 +88,6 @@ alias atom='atom-beta --disable-gpu'
 alias apm='apm-beta'
 
 unalias zplg
-
-if [[ -n $SSH_CONNECTION ]]; then
-    alias ls="lsd --group-dirs=first --icon=never"
-fi
 
 #########################
 #         Other         #
@@ -89,6 +104,7 @@ setopt interactive_comments # Allow comments even in interactive shells (especia
 setopt pushd_ignore_dups    # don't push multiple copies of the same directory onto the directory stack
 setopt auto_pushd           # make cd push the old directory onto the directory stack
 setopt pushdminus           # swapped the meaning of cd +1 and cd -1; we want them to mean the opposite of what they mean
+setopt correct_all          # autocorrect commands
 
 # Fuzzy matching of completions for when you mistype them:
 zstyle ':completion:*' completer _complete _match _approximate

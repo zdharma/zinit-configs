@@ -1,4 +1,4 @@
-if [[ $(tlp-stat -s 2>/dev/null) =~ 'Mode           = Battery' ]]; then 
+if [[ $(cat /run/tlp/manual_mode || cat /run/tlp/last_pwr) = 1 ]]; then 
     varcache=("${AUTO_LS_COMMANDS[@]}")
     AUTO_LS_COMMANDS=("${AUTO_LS_COMMANDSBAT[@]}")
     auto-ls
