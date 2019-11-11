@@ -1,0 +1,9 @@
+Don't run on sudo
+--- nateshmbhat---rm-trash/rm-trash/rm-trash	2019-11-10 19:53:09.176336482 -0500
++++ nateshmbhat---rm-trash/rm-trash/rm-trash-patch	2019-11-10 19:47:32.273906720 -0500
+@@ -1,4 +1,5 @@
+ #!/bin/bash
++[[ $EUID = 0 ]] && { echo "Root detected, running builtin rm"; command rm ${rm_opts} "${@}"; exit; }
+ 
+ # MIT License
+ 

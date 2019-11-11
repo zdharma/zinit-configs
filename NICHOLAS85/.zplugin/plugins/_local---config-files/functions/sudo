@@ -1,0 +1,58 @@
+# _do_sudo from https://github.com/robbyrussell/oh-my-zsh/pull/8163, modified
+function _do_sudo() {
+    [[ -z ${__do_sudo_glob+x} ]] && local __do_sudo_glob=1
+    [[ -z ${__do_sudo_expanded+x} ]] && local -A __do_sudo_expanded
+    local -a args
+    local -a cmd_alias_arr
+    local cmd_alias
+    while (($#)); do
+        case "$1" in
+        command|exec|-) shift; break ;;
+        nocorrect) shift ;;
+        noglob) __do_sudo_glob=0; shift ;;
+        [1-9]) args+=( $1 ); shift ;;
+        *)
+            cmd_alias="$(command -v 2>/dev/null -- "$1")"
+            if [[ "$?" -eq 0 ]] && [[ "$cmd_alias" == 'alias'* ]] && [[ -z "$__do_sudo_expanded["$1"]" ]]; then
+                __do_sudo_expanded["$1"]=1
+                IFS=' ' read -A cmd_alias_arr <<< "$(sed -e "s/[^=]*=//" -e "s/^'//" -e "s/'$//" <<< "$cmd_alias")"
+                args+=( "${cmd_alias_arr[@]}" )
+                shift
+                break
+            else
+                if ((__do_sudo_glob)); then
+                    args+=( $~==1 )
+                else
+                    args+=( $==1 )
+                fi
+                shift
+            fi
+            ;;
+        esac
+    done
+    if [[ ${#cmd_alias_arr[@]} -gt 0 ]]; then
+        _do_sudo "${args[@]}" $==*
+    else
+        if ((__do_sudo_glob)); then
+            command sudo "${args[@]}" $~==*
+        else
+            command sudo "${args[@]}" $==*
+        fi
+    fi
+}
+
+local -a first
+local pos=1 second
+for arg in "$@"
+do
+    if [[ ${arg:0:1} == "-" ]]; then
+        ((++pos))
+        first=("${first[@]}" "$arg")
+    else
+        noglob _do_sudo ${first[@]} env PATH="$PATH:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" ${@:$pos}
+        unset -f _do_sudo
+        return
+    fi
+done
+noglob _do_sudo "${@}"
+unset -f _do_sudo

@@ -1,0 +1,13 @@
+Removed directory from preprompt_parts variable
+--- sindresorhus---pure/pure.zsh	2019-11-10 23:55:10.224774017 -0500
++++ sindresorhus---pure/pure.zsh-patch	2019-11-10 23:57:09.871100319 -0500
+@@ -129,9 +129,6 @@
+ 	# Initialize the preprompt array.
+ 	local -a preprompt_parts
+ 
+-	# Set the path.
+-	preprompt_parts+=('%F{${prompt_pure_colors[path]}}%~%f')
+-
+ 	# Add Git branch and dirty status info.
+ 	typeset -gA prompt_pure_vcs_info
+ 	if [[ -n $prompt_pure_vcs_info[branch] ]]; then

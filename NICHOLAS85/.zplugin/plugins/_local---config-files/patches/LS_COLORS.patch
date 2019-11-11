@@ -1,0 +1,33 @@
+Change dir color and add color to configs
+--- trapd00r---LS_COLORS/LS_COLORS	2019-11-10 20:06:56.272863178 -0500
++++ trapd00r---LS_COLORS/LS_COLORS-patch	2019-11-10 20:07:58.156027896 -0500
+@@ -36,7 +36,7 @@
+ BLK                   38;5;68
+ CAPABILITY            38;5;17
+ CHR                   38;5;113;1
+-DIR                   38;5;30
++DIR                   01;34
+ DOOR                  38;5;127
+ EXEC                  38;5;208;1
+ FIFO                  38;5;126
+@@ -146,14 +146,14 @@
+ # }}}
+ # }}}
+ # configs {{{2
+-*config               1
+-*cfg                  1
+-*conf                 1
+-*rc                   1
++*config               36
++*cfg                  36
++*conf                 36
++*rc                   36
+ *authorized_keys      1
+ *known_hosts          1
+-.ini                  1
+-.plist                1
++.ini                  36
++.plist                36
+ #   vim
+ .viminfo              1
+ #   cisco VPN client configuration

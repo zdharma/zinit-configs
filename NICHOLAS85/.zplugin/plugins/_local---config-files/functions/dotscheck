@@ -13,5 +13,8 @@
     dots push
   elif [[ "$dotsvar4" =~ "is behind" ]]; then
     dots status
+  else
+  	return 0
   fi
 fi
+echo

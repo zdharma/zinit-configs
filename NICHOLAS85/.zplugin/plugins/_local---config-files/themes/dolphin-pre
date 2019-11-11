@@ -1,0 +1,3 @@
+prompt_newline='%666v'
+PROMPT=" $PROMPT"
+PURE_PROMPT_SYMBOL='➜'

@@ -10,16 +10,22 @@
 
 # Autoload personal functions
 fpath=("${0:h}/functions" "${fpath[@]}")
-autoload -Uz _zpcompinit_fast auto-ls-colorls auto-ls-modecheck dotscheck history-stat
+autoload -Uz $fpath[1]/*(.:t)
 
 #########################
 #       Variables       #
 #########################
 
+pchf="/${0:h}/patches"
+thmf="/${0:h}/themes"
+
 HISTFILE="${HOME}/.histfile"
 
+# Directory checked for locally built projects (plugin NICHOLAS85/updatelocal)
+UPDATELOCAL_GITDIR="${HOME}/github/Built"
+
 ZSH_AUTOSUGGEST_USE_ASYNC=true
-ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE=50
+ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE=30
 
 HISTORY_SUBSTRING_SEARCH_FUZZY=set
 
@@ -27,22 +33,27 @@ colorlscommand=(lsd --group-dirs first)
 colorlsgitcommand=(colorls --sd --gs -A)
 
 AUTO_LS_COMMANDS=(colorls)
-#AUTO_LS_COMMANDSBAT=(ls)
 AUTO_LS_NEWLINE=false
 
-EDITOR=kate
+export EDITOR=micro
 
-forgit_ignore="/dev/null"
+FZ_HISTORY_CD_CMD=zshz
+ZSHZ_CMD="/dev/null" # Don't set the alias, fz will cover that
+
+FZF_DEFAULT_COMMAND="fd --type file --color=always"
+FZF_DEFAULT_OPTS="--ansi"
+
+ZSHZ_EXCLUDE_DIRS=( / )
+
+forgit_ignore="/dev/null" #replaced gi with local git-ignore plugin
 
 WD_CONFIG="${ZPFX}/warprc"
+ZSHZ_DATA="${ZPFX}/z"
 
-rm_opts=(-I -v)
+export rm_opts=(-I -v)
 
-# Directory checked for locally built projects (plugin updatelocal)
-UPDATELOCAL_GITDIR="${HOME}/github/Built"
-
-# Strings to ignore when using dotscheck, escape and single quote stuff that could be wild cards (../)
-dotsvar=( gtkrc-2.0 kwinrulesrc '\.\./' '\.config/gtk-3\.0/settings\.ini' )
+# Strings to ignore when using dotscheck, escape stuff that could be wild cards (../)
+dotsvar=( gtkrc-2.0 kwinrulesrc \.\./ \.config/gtk-3\.0/settings\.ini )
 
 # Export variables when connected via SSH
 if [[ -n $SSH_CONNECTION ]]; then
@@ -51,6 +62,11 @@ if [[ -n $SSH_CONNECTION ]]; then
     alias ls="lsd --group-dirs=first --icon=never"
 else
     alias ls='lsd --group-dirs=first'
+fi
+
+# Set variables if on ac mode
+if [[ $(cat /run/tlp/last_pwr) = 0 ]]; then
+    alias micro="\micro -fastdirty false"
 fi
 
 # Used to programatically disable plugins when opening the terminal view in dolphin 
@@ -70,19 +86,19 @@ fi
 alias ..='command .. 2>/dev/null || cd $(dirname $PWD)'
 
 # Access zsh config files
-alias zshconf="${=EDITOR} ${HOME}/.zshrc ${0:h}/config-files.plugin.zsh ${0:h}/themes/\${MYPROMPT} &!"
+alias zshconf="$EDITOR ${HOME}/.zshrc ${0:h}/config-files.plugin.zsh ${0:h}/themes/\${MYPROMPT}* &!"
 
-alias zshconfatom="atom ${HOME}/.zshrc ${0:h}/config-files.plugin.zsh ${0:h}/themes/\${MYPROMPT} &!"
+#alias zshconfatom="atom ${HOME}/.zshrc ${0:h}/config-files.plugin.zsh ${0:h}/themes/\${MYPROMPT}* &!"
 
 # dot file management
 alias dots=' /usr/bin/git --git-dir=$HOME/.dots/ --work-tree=$HOME'
 #           ^Space added to remove this command from history
 
 alias g='git'
+alias gi="git-ignore"
 alias open='xdg-open'
-# allow sudo to expand aliases as well as run anything in $PATH
-alias sudo='sudo env PATH="$PATH:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"  '
-alias gencomp='echo "Use gcomp"'
+
+
 alias -- -='cd -'
 alias atom='atom-beta --disable-gpu'
 alias apm='apm-beta'

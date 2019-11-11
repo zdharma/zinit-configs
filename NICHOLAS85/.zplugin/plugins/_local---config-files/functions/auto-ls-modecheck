@@ -1,7 +1,0 @@
-if [[ $(cat /run/tlp/manual_mode || cat /run/tlp/last_pwr) = 1 ]]; then 
-    varcache=("${AUTO_LS_COMMANDS[@]}")
-    AUTO_LS_COMMANDS=("${AUTO_LS_COMMANDSBAT[@]}")
-    auto-ls
-    AUTO_LS_COMMANDS=("${varcache[@]}")
-    break
-fi
