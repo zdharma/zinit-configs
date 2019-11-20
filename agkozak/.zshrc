@@ -4,12 +4,15 @@
 #
 # shellcheck disable=SC1090,SC2034,SC2128,SC2148,SC2154
 
-# If zsh is emulating another shell
+# If zsh is emulating another shell {{{1
+
 if [[ $0 == 'ksh' ]] || [[ $0 == 'sh' ]]; then
   source "$HOME/.shrc" && exit
 elif [[ $0 == 'bash' ]]; then
   source "$HOME/.bashrc" && exit
 fi
+
+# }}}1
 
 # Begin .zshrc benchmarks {{{1
 
@@ -531,13 +534,13 @@ fi
 # which should not be aliased in ZSH
 alias which &> /dev/null && unalias which
 
-# }}}1
-
 # While tinkering with ZSH-z
 if (( SHLVL == 1 )); then
   [[ ! -d ${HOME}/.zbackup ]] && mkdir "${HOME}/.zbackup"
   cp "${HOME}/.z" "${HOME}/.zbackup/.z_${EPOCHSECONDS}" 2> /dev/null
 fi
+
+# }}}1
 
 # Compile or recompile ~/.zcompdump {{{1
 

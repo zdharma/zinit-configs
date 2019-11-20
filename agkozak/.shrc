@@ -8,19 +8,30 @@
 #
 # shellcheck shell=sh
 
-# Only run this script when shell is interactive
+# Only run this script when shell is interactive {{{1
+
 case $- in
   *i*) ;;
   *) exit ;;
 esac
 
+# }}}1
+
+# AGKDOT_SYSTEMINFO {{{1
+
 export AGKDOT_SYSTEMINFO
 : "${AGKDOT_SYSTEMINFO:=$(uname -a)}"
+
+# }}}1
+
+# Source ~/.profile {{{1
 
 #shellcheck source=/dev/null
 [ -z "$ENV" ] && [ -f "$HOME/.profile" ] && . "$HOME/.profile"
 
-# Begin .shrc benchmark {{{
+# }}}1
+
+# Begin .shrc benchmark {{{1
 
 _agkdot_is_busybox() {
   [ "${AGKDOT_IS_BUSYBOX:-0}" -eq 1 ] && return 0
@@ -47,7 +58,7 @@ if [ "${AGKDOT_BENCHMARKS:-0}" -eq 1 ]; then
   }
 fi
 
-# }}}
+# }}}1
 
 # Raspberry Pi LXTerminal {{{1
 
@@ -256,6 +267,8 @@ fi
 
 # }}}1
 
+# Miscellaneous {{{1
+
 # search path for cd(1)
 # CDPATH=:$HOME
 
@@ -277,13 +290,15 @@ if [ -z "$ZSH_VERSION" ]; then
   esac
 fi
 
-# find shorthand {{{
+# }}}1
+
+# find shorthand {{{1
 
 f() {
   find . -name "$1" 2>&1 | grep -v 'Permission denied'
 }
 
-# }}}
+# }}}1
 
 # Pull in updates from the dotfiles repo and install them {{{1
 
@@ -303,14 +318,16 @@ update_dotfiles() {
 
 # }}}1
 
-# Disable flow control -- allows use of Ctrl-Q as tmux/screen prefix
-#
+# Disable flow control -- allows use of Ctrl-Q as tmux/screen prefix {{{1
+
 # zsh might be running in ksh emulation mode
 if [ "$0" = 'ksh' ] || [ -z "$ZSH_VERSION" ]; then
   stty -ixon
 fi
 
-# End .shrc benchmark {{{
+# }}}1
+
+# End .shrc benchmark {{{1
 
 if [ "${AGKDOT_BENCHMARKS:-0}" -eq 1 ]; then
   [ "${AGKDOT_ZSHRC_LOADING:-0}" -eq 1 ] || {
@@ -329,11 +346,19 @@ fi
 
 unset AGKDOT_SHRC_START AGKDOT_SHRC_FINISH AGKDOT_DIFFERENCE
 
-# }}}
+# }}}1
+
+# Source ~/.shrc.local {{{1
 
 # shellcheck source=/dev/null
 if [ -f "$HOME/.shrc.local" ]; then . "$HOME/.shrc.local"; fi
 
+# }}}1
+
+# Clean up environment {{{1
+
 if [ -n "${AGKDOT_IS_BUSYBOX}" ]; then unset AGKDOT_IS_BUSYBOX; fi
+
+# }}}1
 
 # vim: ft=sh:fdm=marker:ts=2:et:sw=2:ai:sts=2

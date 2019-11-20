@@ -5,8 +5,14 @@
 # shellcheck shell=sh
 # shellcheck disable=SC2034
 
+# AGKDOT_SYSTEMINFO {{{1
+
 export AGKDOT_SYSTEMINFO
 AGKDOT_SYSTEMINFO=$(uname -a)
+
+# }}}1
+
+# Environment variables {{{1
 
 export EDITOR VISUAL
 if command -v vim > /dev/null 2>&1; then
@@ -31,13 +37,13 @@ case $(ls -l "$(command -v less)") in
     esac
 esac
 
-if command -v lesspipe > /dev/null 2>&1; then
-  export LESSOPEN
-	LESSOPEN='|~/.lessfilter %s'
-elif command -v lesspipe.sh > /dev/null 2>&1; then
-  export LESSOPEN
-	LESSOPEN="$(command -v lesspipe.sh) %s"
-fi
+# if command -v lesspipe > /dev/null 2>&1; then
+#   export LESSOPEN
+# 	LESSOPEN='| ~/.lessfilter %s'
+# elif command -v lesspipe.sh > /dev/null 2>&1; then
+#   export LESSOPEN
+# 	LESSOPEN='| lesspipe.sh %s'
+# fi
 
 if [ -f "$HOME/.lynx.cfg" ]; then
   export LYNX_CFG
@@ -120,13 +126,23 @@ case $AGKDOT_SYSTEMINFO in
     ;;
 esac
 
+# }}}1
+
+# umask {{{1
+
 if [ "$(umask)" = "000" ]; then            # For WSL
   umask 022
 fi
+
+# }}}1
+
+# Source ~/.profile.local {{{1
 
 if [ -f "$HOME/.profile.local" ]; then
 	# shellcheck source=/dev/null
 	. "$HOME/.profile.local"
 fi
 
-# vim: ts=2:sts=2:sw=2:ai:et
+# }}}1
+
+# vim: fdm=marker:ts=2:sts=2:sw=2:ai:et
