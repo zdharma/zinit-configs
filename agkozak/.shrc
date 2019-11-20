@@ -1,0 +1,339 @@
+# ~/.shrc - bourne shell startup file
+#
+# https://github.com/agkozak/dotfiles
+#
+# This file will be used if the shell is invoked for interactive use and
+# the environment variable ENV is set to this file. It is sourced at the
+# beginnning of .zshrc and .bashrc
+#
+# shellcheck shell=sh
+
+# Only run this script when shell is interactive
+case $- in
+  *i*) ;;
+  *) exit ;;
+esac
+
+export AGKDOT_SYSTEMINFO
+: "${AGKDOT_SYSTEMINFO:=$(uname -a)}"
+
+#shellcheck source=/dev/null
+[ -z "$ENV" ] && [ -f "$HOME/.profile" ] && . "$HOME/.profile"
+
+# Begin .shrc benchmark {{{
+
+_agkdot_is_busybox() {
+  [ "${AGKDOT_IS_BUSYBOX:-0}" -eq 1 ] && return 0
+  case $0 in
+    sh|-sh|ash|-ash)
+      if command -v readlink > /dev/null 2>&1; then
+        case $(exec 2>/dev/null; readlink "/proc/$$/exe") in
+          */busybox) AGKDOT_IS_BUSYBOX=1 && return 0 ;;
+          *) return 1 ;;
+        esac
+      fi
+      ;;
+    *) return 1 ;;
+  esac
+}
+
+if [ "${AGKDOT_BENCHMARKS:-0}" -eq 1 ]; then
+  [ "${AGKDOT_ZSHRC_LOADING:-0}" -eq 1 ] || {
+    case $AGKDOT_SYSTEMINFO in
+      # BSD and busybox date don't handle nanoseconds
+      *BSD*|*bsd*|DragonFly*) ;;
+      *) ! _agkdot_is_busybox && AGKDOT_SHRC_START="$(date +%s%N)" ;;
+    esac
+  }
+fi
+
+# }}}
+
+# Raspberry Pi LXTerminal {{{1
+
+# It's important to set this up early so that dircolors uses the right number of
+# colors
+
+if [ "$XDG_CURRENT_DESKTOP" = 'LXDE' ] && [ "$TERM" = 'xterm' ]; then
+  TERM='xterm-256color'                              # LXTerminal can't set TERM
+fi
+
+# }}}1
+
+# Aliases {{{1
+
+# case $(type fc) in                              # fc can be Windows file compare
+#   *builtin) alias h='fc -l' ;;
+# esac
+
+# alias j=jobs
+# alias m='$PAGER'
+# alias g='egrep -i'
+
+# enable color support of ls and also add handy aliases {{{2
+
+case $TERM in
+  *-256color) AGKDOT_TERM_COLORS=256 ;;
+  vt100|vt220|dumb) AGKDOT_TERM_COLORS=-1 ;;
+  *)
+    case $AGKDOT_SYSTEMINFO in
+      FreeBSD*|DragonFly*) AGKDOT_TERM_COLORS=$(tput Co) ;;
+      UWIN*) AGKDOT_TERM_COLORS=$(tput cols) ;;
+      *) AGKDOT_TERM_COLORS=$(tput colors) ;;
+    esac
+    ;;
+esac
+
+case $AGKDOT_SYSTEMINFO in
+  # CYGWIN*GNU/Linux is MobaXterm, which uses busybox ls
+  CYGWIN*GNU/Linux|SunOS*|NetBSD*|OpenBSD*|UWIN*) ;;
+  # BSD ls
+  Darwin*|*BSD*|*bsd*|*[Dd]ragon[Ff]ly*)
+    [ "$AGKDOT_TERM_COLORS" -ge 8 ] && LS_OPTIONS='-G'
+    ;;
+  *)
+    LS_OPTIONS='--group-directories-first -F -h -T 0'
+    [ "$AGKDOT_TERM_COLORS" -ge 8 ] && LS_OPTIONS="$LS_OPTIONS --color"
+    case $AGKDOT_SYSTEMINFO in
+      *Msys|*Cygwin) LS_OPTIONS="$LS_OPTIONS --hide=NTUSER* --hide=ntuser*" ;;
+    esac
+    ;;
+esac
+
+alias ls='ls $LS_OPTIONS'
+
+case $AGKDOT_SYSTEMINFO in
+  SunOS*)
+    if [ -x /usr/gnu/bin/ls ]; then
+      alias ls='/usr/gnu/bin/ls --group-directories-first -F -h -T 0 --color'
+    fi
+    ;;
+esac
+
+if [ -n "$INSIDE_EMACS" ]; then
+  unset LS_COLORS
+elif [ -z "$LS_COLORS" ]; then
+  if command -v dircolors > /dev/null 2>&1; then
+    if [ -r "$HOME/.dircolors" ] && [ "$AGKDOT_TERM_COLORS" -ge 256 ]; then
+      eval "$(dircolors -b "$HOME/.dircolors")"
+    elif [ "$AGKDOT_TERM_COLORS" -ge 8 ]; then
+      eval "$(dircolors -b)"
+    fi
+  fi
+fi
+
+case $AGKDOT_SYSTEMINFO in
+  CYGWIN*GNU/Linux|SunOS*|*ish*|UWIN*) ;;
+  *)
+    if [ "$AGKDOT_TERM_COLORS" -ge 8 ]; then
+      alias dir='dir --color=auto'
+      alias vdir='vdir --color=auto'
+
+      alias grep='grep --color=auto'
+      alias fgrep='fgrep --color=auto'
+      alias egrep='egrep --color=auto'
+    fi
+    ;;
+esac
+
+unset AGKDOT_TERM_COLORS
+
+# }}}2
+
+# some more ls aliases {{{2
+
+# alias ll='ls -alF'
+# alias la='ls -A'
+# alias l='ls -CF'
+
+# alias lr='ls -tRFh'   # sorted by date, recursive, show type, human-readable
+# alias lt='ls -ltFh'   # long list, sorted by date, show type, human-readable
+alias ldot='ls -ld .*'
+# alias lS='ls -1FSsh'
+# alias lart='ls -1Fcart'
+# alias lrt='ls -1Fcrt'
+
+# }}}2
+
+command -v hue > /dev/null 2>&1 && alias bri='hue set all -b'
+
+_agkdot_is_uwin() {
+  case $AGKDOT_SYSTEMINFO in
+    UWIN*) return 0 ;;
+    *) return 1 ;;
+  esac
+}
+
+case $KSH_VERSION in
+  *R55*) ;; # mksh version R55 erroneously does not allow these aliases
+  *)
+    alias ..='cd ..'
+    alias ...='cd ../..'
+    ;;
+esac
+# alias c='clear'
+alias composer='$HOME/bin/composer.phar'
+# if ! _agkdot_is_uwin; then
+#   alias dud='du -d 1 -h'
+#   alias duf='du -sh *'
+# fi
+# command -v dos2unix > /dev/null 2>&1 || alias dos2unix='perl -p -i -e "s/\\r\\n/\\n/g"'
+# alias fd='find . -type d -name' # Conflicts with fd utility
+# alias ff='find . -type f -name'
+alias github-stats='github-stats --token $GITHUB_STATS_TOKEN'
+# alias help='man'
+# alias p='ps -f'
+alias phpunit='$HOME/bin/phpunit.phar'
+# if ! _agkdot_is_busybox && ! _agkdot_is_uwin; then
+#   alias sgrep='grep -R -n -H -C 5 --exclude-dir={.git,.svn,CVS} '
+# fi
+# alias sortnr='sort -n -r'
+# alias t='tail -f'
+alias v='findv'
+alias vv='findv --verbose'
+command -v vim > /dev/null 2>&1 && alias vi='vim'
+alias wp='$HOME/bin/wp-cli.phar'
+alias yta='youtube-dl --audio-format best -x '
+
+# System-specific aliases {{{2
+
+############################################################
+# Create winpty aliases for MSYS2 and Cygwin
+#
+# Arguments:
+#   $1, $2, etc.  Programs that should be run with winpty
+############################################################
+_agkdot_winpty_alias() {
+  while [ $# -ne 0 ]; do
+    # shellcheck disable=SC2139,SC2140
+    alias "$1"="winpty $1"
+    shift
+  done
+}
+
+case "$AGKDOT_SYSTEMINFO" in
+  *Msys|*Cygwin)
+    _agkdot_winpty_alias choco cinst cuninst cup node php
+    alias eslint='winpty $APPDATA/npm/eslint.cmd'
+    alias ghci='ghcii.sh'
+    alias gvim='/c/Windows/gvim.bat'
+    ;;
+esac
+
+case "$AGKDOT_SYSTEMINFO" in
+  *Msys)
+    alias npm='winpty /c/Program\ Files/nodejs/npm.cmd'
+    alias wp='winpty php $HOME/bin/wp-cli.phar --no-color'
+    ;;
+  *Cygwin)
+    alias composer='php $(cygpath -w "$HOME/bin/composer.phar")'
+    alias npm='winpty /cygdrive/c/Program\ Files/nodejs/npm.cmd'
+    ;;
+  *raspberrypi*)
+    alias temp='/opt/vc/bin/vcgencmd measure_temp | egrep "[0-9.]{4,}" -o'
+    ;;
+  FreeBSD*)
+    alias tmux='TERM=xterm-256color tmux'
+    alias mutt='TERM=xterm-256color mutt'
+    ;;
+esac
+
+# }}}2
+
+# }}}1
+
+# Prompt {{{1
+
+# If possible, load the pan-POSIX Polyglot Prompt
+# But not in zsh -- it uses agkozak-zsh-prompt
+if [ -z "$ZSH_VERSION" ] || [ "$0" = 'bash' ] || [ "$0" = 'ksh' ] \
+  || [ "$0" = 'sh' ]; then
+  if [ -f "$HOME/dotfiles/prompts/polyglot/polyglot.sh" ]; then
+    # shellcheck source=/dev/null
+    . "$HOME/dotfiles/prompts/polyglot/polyglot.sh"
+  fi
+fi
+
+# }}}1
+
+# search path for cd(1)
+# CDPATH=:$HOME
+
+# For ksh93/mksh
+
+# vi-style line editing
+set -o vi
+
+case $KSH_VERSION in *93*) set -o globstar ;; esac
+
+HISTSIZE=10000
+
+# If it's not really zsh emulating ksh
+if [ -z "$ZSH_VERSION" ]; then
+  case $KSH_VERSION in
+    *'PD KSH'*) HISTFILE="$HOME/.pdksh_history" ;;
+    *MIRBSD*) HISTFILE="$HOME/.mksh_history" ;;
+    *) HISTFILE="$HOME/.ksh_history" ;;
+  esac
+fi
+
+# find shorthand {{{
+
+f() {
+  find . -name "$1" 2>&1 | grep -v 'Permission denied'
+}
+
+# }}}
+
+# Pull in updates from the dotfiles repo and install them {{{1
+
+update_dotfiles() {
+  CUR_DIR="$PWD"
+  cd "$HOME/dotfiles" || exit
+  git pull && ./install.sh
+  for i in $(find . -name '.git' | cut -c 3-); do
+    cd "$i" || exit
+    cd ..
+    git pull
+    cd "$HOME/dotfiles" || exit
+  done
+  cd "$CUR_DIR" || exit
+  unset CUR_DIR i
+}
+
+# }}}1
+
+# Disable flow control -- allows use of Ctrl-Q as tmux/screen prefix
+#
+# zsh might be running in ksh emulation mode
+if [ "$0" = 'ksh' ] || [ -z "$ZSH_VERSION" ]; then
+  stty -ixon
+fi
+
+# End .shrc benchmark {{{
+
+if [ "${AGKDOT_BENCHMARKS:-0}" -eq 1 ]; then
+  [ "${AGKDOT_ZSHRC_LOADING:-0}" -eq 1 ] || {
+    case $AGKDOT_SYSTEMINFO in
+      FreeBSD*) ;;
+      *)
+        if ! _agkdot_is_busybox; then
+          AGKDOT_SHRC_FINISH="$(date +%s%N)"
+          AGKDOT_DIFFERENCE=$(( AGKDOT_SHRC_FINISH - AGKDOT_SHRC_START ))
+          echo ".shrc loaded in $((AGKDOT_DIFFERENCE/1000000))ms."
+        fi
+        ;;
+    esac
+  }
+fi
+
+unset AGKDOT_SHRC_START AGKDOT_SHRC_FINISH AGKDOT_DIFFERENCE
+
+# }}}
+
+# shellcheck source=/dev/null
+if [ -f "$HOME/.shrc.local" ]; then . "$HOME/.shrc.local"; fi
+
+if [ -n "${AGKDOT_IS_BUSYBOX}" ]; then unset AGKDOT_IS_BUSYBOX; fi
+
+# vim: ft=sh:fdm=marker:ts=2:et:sw=2:ai:sts=2
