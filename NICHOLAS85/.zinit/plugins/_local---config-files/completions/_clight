@@ -1,0 +1,37 @@
+#compdef clight
+
+# zsh completions for 'clight'
+# automatically generated with http://github.com/RobSis/zsh-completion-generator
+local arguments
+
+arguments=(
+  {-f,--frames}'[frames taken for each capture, Between 1]'
+  {-d,--device}'[0                 Path to webcam device. If empty, first]'
+  {-b,--backlight}'[path to backlight syspath. If empty]'
+  '--no-backlight-smooth[disable smooth backlight transitions]'
+  '--no-gamma-smooth[disable smooth gamma transitions]'
+  '--no-dimmer-smooth[disable smooth dimmer transitions]'
+  '--day-temp[daily gamma temperature, between 1000]'
+  '--night-temp[nightly gamma temperature, between 1000]'
+  '--lat[your desired latitude]'
+  '--lon[your desired longitude]'
+  '--sunrise[7:00                 Force sunrise time for gamma correction]'
+  '--sunset[9:00                  Force sunset time for gamma correction]'
+  '--no-gamma[disable gamma correction tool]'
+  '--no-dimmer[disable dimmer tool]'
+  '--no-dpms[disable dpms tool]'
+  '--no-inhibit[disable]'
+  '--no-backlight[disable backlight module]'
+  '--dimmer-pct[backlight level used while screen is]'
+  '--verbose[enable verbose mode]'
+  '--no-auto-calib[disable screen backlight automatic]'
+  '--no-kbd-backlight[disable keyboard backlight calibration]'
+  '--shutter-thres[threshold to consider a capture as]'
+  {-v,--version}'[show version info]'
+  {-c,--conf-file}'[specify a conf file to be parsed]'
+  '--gamma-long-transition[enable a very long smooth transition for]'
+  '--usage[display brief usage message]'
+  '*:filename:_files'
+)
+
+_arguments -s $arguments

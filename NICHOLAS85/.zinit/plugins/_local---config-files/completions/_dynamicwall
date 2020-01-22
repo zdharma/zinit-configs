@@ -1,0 +1,17 @@
+#compdef dynamicwall
+
+# zsh completions for 'dynamicwall'
+# automatically generated with http://github.com/RobSis/zsh-completion-generator
+local arguments
+
+arguments=(
+  {-f,--force}'[update wallpaper immediately, optionally to a specific time]'
+  {-p,--preview}'[run a 24 hour preview for a certain theme]'
+  {-c,--config}'[edit your config file using your default editor]'
+  {-s,--status}'[display systemd service status/crontab and system-sleep script log]'
+  {-l,--list}'[list available themes to choose from]'
+  {-h,--help}'[show help]'
+  '*:filename:_files'
+)
+
+_arguments -s $arguments

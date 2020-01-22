@@ -1,0 +1,10 @@
+--- desyncr---auto-ls/auto-ls.zsh	2019-12-24 01:12:17.899589679 -0500
++++ desyncr---auto-ls/auto-ls.patch	2020-01-08 10:52:13.052391760 -0500
+@@ -34,6 +34,7 @@
+   #  1. Called from `chpwd_functions` – show file list
+   #  2. Called by another ZLE plugin (like `dirhistory`) through `zle accept-line` – show file list
+   #  3. Called by ZLE itself – only should file list if prompt was empty
++  local cmd
+   if ! zle                          \
+   || { [[ ${WIDGET} != accept-line ]] && [[ ${LASTWIDGET} != .accept-line ]] }\
+   || { [[ ${WIDGET} == accept-line ]] && [[ $#BUFFER -eq 0 ]] }; then

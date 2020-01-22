@@ -1,0 +1,13 @@
+#compdef gebaard
+
+# zsh completions for 'gebaard'
+# automatically generated with http://github.com/RobSis/zsh-completion-generator
+local arguments
+
+arguments=(
+  {-b,--background}'[daemonize]'
+  {-h,--help}'[prints this help text]'
+  '*:filename:_files'
+)
+
+_arguments -s $arguments

@@ -1,6 +1,6 @@
 setopt extendedglob local_options
 autoload -Uz compinit
-local zcompf="${ZPLGM[ZCOMPDUMP_PATH]:-${ZDOTDIR:-$HOME}/.zcompdump}"
+local zcompf="${ZINIT[ZCOMPDUMP_PATH]:-${ZDOTDIR:-$HOME}/.zcompdump}"
 
 # use a separate file to determine when to regenerate, as compinit doesn't always need to modify the compdump
 local zcompf_a="${zcompf}.augur"

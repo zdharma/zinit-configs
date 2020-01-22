@@ -16,44 +16,59 @@ autoload -Uz $fpath[1]/*(.:t)
 #       Variables       #
 #########################
 
-pchf="/${0:h}/patches"
-thmf="/${0:h}/themes"
-
+pchf="${0:h}/patches"
+thmf="${0:h}/themes"
+GENCOMPL_FPATH="${0:h}/completions"
 HISTFILE="${HOME}/.histfile"
+WD_CONFIG="${ZPFX}/warprc"
+ZSHZ_DATA="${ZPFX}/z"
+AUTOENV_AUTH_FILE="${ZPFX}/autoenv_auth"
 
 # Directory checked for locally built projects (plugin NICHOLAS85/updatelocal)
 UPDATELOCAL_GITDIR="${HOME}/github/Built"
+UL_Acond='! $isdolphin' # Condition checked before running UL_Acomm
+UL_Acomm='cache=($chpwd_functions); chpwd_functions=()' # Command run if UL_Acond true
+UL_Bcomm='chpwd_functions=($cache); [ -z $1 ] && { checkupdates && print -n "\033[1;32m➜ \033[0m" } &!' # Command run after updatelocal finishes if UL_Acond was true
 
 ZSH_AUTOSUGGEST_USE_ASYNC=true
 ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE=30
 
 HISTORY_SUBSTRING_SEARCH_FUZZY=set
 
+(){ local stratum strata=( arch bedrock debian hijacked init )
+for stratum in ${strata}; do hash -d "${stratum}"="/bedrock/strata/${stratum}"; done }
+
+LD_PRELOAD=~arch/usr/lib/libgtk3-nocsd.so.0 # Fix unable to preload msg
+export OPENCV_LOG_LEVEL=ERROR # Hide nonimportant errors for howdy
+export rm_opts=(-I -v)
+export EDITOR=micro
+FZF_DEFAULT_OPTS="
+--border
+--height 80%
+--extended
+--ansi
+--reverse
+--cycle
+--bind ctrl-s:toggle-sort
+--bind 'alt-e:execute($EDITOR {} >/dev/tty </dev/tty)'
+--preview \"(bat --color=always {} || ls -l --color=always {}) 2>/dev/null | head -200\"
+--preview-window right:50%:hidden
+"
+FZF_DEFAULT_COMMAND="fd --type f --hidden --follow --exclude .git 2>/dev/null"
 colorlscommand=(lsd --group-dirs first)
 colorlsgitcommand=(colorls --sd --gs -A)
 
 AUTO_LS_COMMANDS=(colorls)
 AUTO_LS_NEWLINE=false
 
-export EDITOR=micro
+ZSHZ_EXCLUDE_DIRS=( / )
 
 FZ_HISTORY_CD_CMD=zshz
 ZSHZ_CMD="/dev/null" # Don't set the alias, fz will cover that
-
-FZF_DEFAULT_COMMAND="fd --type file --color=always"
-FZF_DEFAULT_OPTS="--ansi"
-
-ZSHZ_EXCLUDE_DIRS=( / )
-
 forgit_ignore="/dev/null" #replaced gi with local git-ignore plugin
 
-WD_CONFIG="${ZPFX}/warprc"
-ZSHZ_DATA="${ZPFX}/z"
-
-export rm_opts=(-I -v)
-
 # Strings to ignore when using dotscheck, escape stuff that could be wild cards (../)
-dotsvar=( gtkrc-2.0 kwinrulesrc \.\./ \.config/gtk-3\.0/settings\.ini )
+dotsvar=( gtkrc-2.0 kwinrulesrc '\.\./' \.config/gtk-3\.0/settings\.ini )
 
 # Export variables when connected via SSH
 if [[ -n $SSH_CONNECTION ]]; then
@@ -86,19 +101,18 @@ fi
 alias ..='command .. 2>/dev/null || cd $(dirname $PWD)'
 
 # Access zsh config files
-alias zshconf="$EDITOR ${HOME}/.zshrc ${0:h}/config-files.plugin.zsh ${0:h}/themes/\${MYPROMPT}* &!"
+alias zshconf="kate ${HOME}/.zshrc ${0:h}/config-files.plugin.zsh ${0:h}/themes/\${MYPROMPT}*"
 
-#alias zshconfatom="atom ${HOME}/.zshrc ${0:h}/config-files.plugin.zsh ${0:h}/themes/\${MYPROMPT}* &!"
+alias zshconfatom="atom ${HOME}/.zshrc ${0:h}/config-files.plugin.zsh ${0:h}/themes/\${MYPROMPT}* &!"
 
 # dot file management
-alias dots=' /usr/bin/git --git-dir=$HOME/.dots/ --work-tree=$HOME'
+alias dots=' command git --git-dir=$HOME/.dots/ --work-tree=$HOME'
 #           ^Space added to remove this command from history
 
+alias t='tail -f'
 alias g='git'
 alias gi="git-ignore"
 alias open='xdg-open'
-
-
 alias -- -='cd -'
 alias atom='atom-beta --disable-gpu'
 alias apm='apm-beta'

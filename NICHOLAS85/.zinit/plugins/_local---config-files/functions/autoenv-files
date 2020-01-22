@@ -1,0 +1,6 @@
+dirs=( $( { sed -e 's/:\(.*\):/\1/' $AUTOENV_AUTH_FILE } | sed 's/:.*//' |
+FZF_DEFAULT_OPTS="$FORGIT_FZF_DEFAULT_OPTS -0 -m --nth 2..,..
+--preview='[[ \$(file --mime {}) =~ binary ]] && echo {} is a binary file || (bat --style=numbers --color=always {}) 2> /dev/null | head -500'
+$FORGIT_ADD_FZF_OPTS" fzf ) )
+
+${dirs:+kate} $dirs

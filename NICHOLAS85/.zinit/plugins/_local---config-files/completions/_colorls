@@ -1,0 +1,37 @@
+#compdef colorls
+
+# zsh completions for 'colorls'
+# automatically generated with http://github.com/RobSis/zsh-completion-generator
+local arguments
+
+arguments=(
+  {-a,--all}'[do not ignore entries starting with .]'
+  {-A,--almost-all}'[do not list . and ..]'
+  {-d,--dirs}'[show only directories]'
+  {-f,--files}'[show only files]'
+  {--gs,--git-status}'[show git status for each file]'
+  '--report[show brief report]'
+  '--format[use format: accross (-x), horizontal (-x), long (-l), single-column (-1)]'
+  '-1[list one file per line]'
+  {-l,--long}'[use a long listing format]'
+  '-x[list entries by lines instead of by columns]'
+  '--tree[shows tree view of the directory]'
+  {--sd,--sort-dirs,--group-directories-first}'[sort directories first]'
+  {--sf,--sort-files}'[sort files first]'
+  '-t[sort by modification time, newest first]'
+  '-U[do not sort; list entries in directory order]'
+  '-S[sort by file size, largest first]'
+  '-X[sort by file extension]'
+  '--sort[sort by WORD instead of name: none, size (-S), time (-t), extension (-X)]'
+  {-r,--reverse}'[reverse order while sorting]'
+  {-h,--human-readable}'[]'
+  '--color[colorize the output: auto, always (default if omitted), never]'
+  '--light[use light color scheme]'
+  '--dark[use dark color scheme]'
+  '--hyperlink[]'
+  '--help[prints this help]'
+  '--version[show version]'
+  '*:filename:_files'
+)
+
+_arguments -s $arguments

@@ -1,4 +1,3 @@
-# _do_sudo from https://github.com/robbyrussell/oh-my-zsh/pull/8163, modified
 function _do_sudo() {
     [[ -z ${__do_sudo_glob+x} ]] && local __do_sudo_glob=1
     [[ -z ${__do_sudo_expanded+x} ]] && local -A __do_sudo_expanded
@@ -49,10 +48,10 @@ do
         ((++pos))
         first=("${first[@]}" "$arg")
     else
-        noglob _do_sudo ${first[@]} env PATH="$PATH:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" ${@:$pos}
+        noglob _do_sudo ${first[@]} env PATH="$ZPFX/bin:/bedrock/cross/pin/bin:/bedrock/bin:/usr/local/bin:/usr/local/sbin:/opt/bin:/opt/sbin:/usr/bin:/usr/sbin:/bin:/sbin:/snap/bin:/bedrock/cross/bin" ${@:$pos}
         unset -f _do_sudo
         return
     fi
 done
-noglob _do_sudo "${@}"
+command sudo "${@}"
 unset -f _do_sudo

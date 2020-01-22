@@ -1,0 +1,18 @@
+#compdef tlp-stat
+
+# zsh completions for 'tlp-stat'
+# automatically generated with http://github.com/RobSis/zsh-completion-generator
+local arguments
+
+arguments=(
+  {-d,--disk}'[| -e | --pcie      |]'
+  {-g,--graphics}'[| -p | --processor |]'
+  {-r,--rfkill}'[| -s | --system    |]'
+  {-t,--temp}'[| -u | --usb       |]'
+  {-w,--warn}'[| -v | --verbose   |]'
+  {-P,--pev}'[|    | --psup      |]'
+  {-T,--trace}'[]'
+  '*:filename:_files'
+)
+
+_arguments -s $arguments
