@@ -1,0 +1,11 @@
+setopt localoptions nopushdminus
+
+[[ ${#dirstack} -eq 0 ]] && return
+
+while ! builtin pushd -q $1 &>/dev/null; do
+    # A missing directory was found; pop it out of the directory stack.
+    builtin popd -q $1
+
+    # Stop trying if there are no more directories in the directory stack.
+    [[ ${#dirstack} -eq 0 ]] && break
+done

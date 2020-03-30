@@ -31,17 +31,19 @@ UL_Acomm='cache=($chpwd_functions); chpwd_functions=()' # Command run if UL_Acon
 UL_Bcomm='chpwd_functions=($cache); [ -z $1 ] && { checkupdates && print -n "\033[1;32m➜ \033[0m" } &!' # Command run after updatelocal finishes if UL_Acond was true
 
 ZSH_AUTOSUGGEST_USE_ASYNC=true
-ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE=30
-
+ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE=20
+ZSH_AUTOSUGGEST_HISTORY_IGNORE="?(#c50,)"
+ZSH_AUTOSUGGEST_MANUAL_REBIND=set
+ZSH_AUTOSUGGEST_STRATEGY=(history completion)
+FAST_ALIAS_TIPS_PREFIX="» $(tput setaf 6)"
+FAST_ALIAS_TIPS_SUFFIX="$(tput sgr0) «"
 HISTORY_SUBSTRING_SEARCH_FUZZY=set
 
-(){ local stratum strata=( arch bedrock debian hijacked init )
-for stratum in ${strata}; do hash -d "${stratum}"="/bedrock/strata/${stratum}"; done }
-
-LD_PRELOAD=~arch/usr/lib/libgtk3-nocsd.so.0 # Fix unable to preload msg
 export OPENCV_LOG_LEVEL=ERROR # Hide nonimportant errors for howdy
 export rm_opts=(-I -v)
 export EDITOR=micro
+export SYSTEMD_EDITOR=${EDITOR}
+export GIT_DISCOVERY_ACROSS_FILESYSTEM=true # etckeeper on bedrock
 FZF_DEFAULT_OPTS="
 --border
 --height 80%
@@ -55,16 +57,14 @@ FZF_DEFAULT_OPTS="
 --preview-window right:50%:hidden
 "
 FZF_DEFAULT_COMMAND="fd --type f --hidden --follow --exclude .git 2>/dev/null"
-colorlscommand=(lsd --group-dirs first)
-colorlsgitcommand=(colorls --sd --gs -A)
+colorlscommand="lsd --group-dirs first"
+colorlsgitcommand="colorls --sd --gs -A"
 
-AUTO_LS_COMMANDS=(colorls)
+AUTO_LS_COMMANDS="colorls"
 AUTO_LS_NEWLINE=false
 
-ZSHZ_EXCLUDE_DIRS=( / )
-
 FZ_HISTORY_CD_CMD=zshz
-ZSHZ_CMD="/dev/null" # Don't set the alias, fz will cover that
+ZSHZ_CMD="" # Don't set the alias, fz will cover that
 forgit_ignore="/dev/null" #replaced gi with local git-ignore plugin
 
 # Strings to ignore when using dotscheck, escape stuff that could be wild cards (../)
@@ -81,7 +81,7 @@ fi
 
 # Set variables if on ac mode
 if [[ $(cat /run/tlp/last_pwr) = 0 ]]; then
-    alias micro="\micro -fastdirty false"
+    alias micro="micro -fastdirty false"
 fi
 
 # Used to programatically disable plugins when opening the terminal view in dolphin 
@@ -97,27 +97,34 @@ fi
 #       Aliases         #
 #########################
 
-# Allows leaving from deleted directories
-alias ..='command .. 2>/dev/null || cd $(dirname $PWD)'
-
 # Access zsh config files
-alias zshconf="kate ${HOME}/.zshrc ${0:h}/config-files.plugin.zsh ${0:h}/themes/\${MYPROMPT}*"
-
-alias zshconfatom="atom ${HOME}/.zshrc ${0:h}/config-files.plugin.zsh ${0:h}/themes/\${MYPROMPT}* &!"
-
-# dot file management
-alias dots=' command git --git-dir=$HOME/.dots/ --work-tree=$HOME'
-#           ^Space added to remove this command from history
+alias zshconf="(){ setopt extendedglob local_options; kate ${HOME}/.zshrc ${0:h}/config-files.plugin.zsh ${0:h}/themes/\${MYPROMPT}*~*.zwc }"
+alias zshconfatom="(){ setopt extendedglob local_options; atom ${HOME}/.zshrc ${0:h}/config-files.plugin.zsh ${0:h}/themes/\${MYPROMPT}*~*.zwc &! }"
 
 alias t='tail -f'
 alias g='git'
-alias gi="git-ignore"
 alias open='xdg-open'
-alias -- -='cd -'
 alias atom='atom-beta --disable-gpu'
 alias apm='apm-beta'
+alias ..='cd .. 2>/dev/null || cd "$(dirname $PWD)"' # Allows leaving from deleted directories
+alias -- -='_dircycle_update_cycled +1 || true'
+alias -- +='_dircycle_update_cycled -0 || true'
 
-unalias zplg
+(( ${+commands[brl]} )) && {
+(){ local stratum strata=( /bedrock/run/enabled_strata/* )
+for stratum in ${strata:t}; do
+hash -d "${stratum}"="/bedrock/strata/${stratum}"
+alias "${stratum}"="strat ${stratum}"
+alias "r${stratum}"="strat -r ${stratum}"
+[[ -d "/bedrock/strata/${stratum}/etc/.git" ]] && \
+alias "${stratum:0:1}edots"="command sudo strat -r ${stratum} git --git-dir=/etc/.git --work-tree=/etc"
+done }
+alias bedots='command sudo git --git-dir=/bedrock/.git --work-tree=/bedrock'
+LD_PRELOAD=~arch/usr/lib/libgtk3-nocsd.so.0 # Fix unable to preload msg
+}
+# dot file management
+alias dots=' command git --git-dir=$HOME/.dots/ --work-tree=$HOME'
+#           ^Space added to remove this command from history
 
 #########################
 #         Other         #
@@ -134,7 +141,6 @@ setopt interactive_comments # Allow comments even in interactive shells (especia
 setopt pushd_ignore_dups    # don't push multiple copies of the same directory onto the directory stack
 setopt auto_pushd           # make cd push the old directory onto the directory stack
 setopt pushdminus           # swapped the meaning of cd +1 and cd -1; we want them to mean the opposite of what they mean
-setopt correct_all          # autocorrect commands
 
 # Fuzzy matching of completions for when you mistype them:
 zstyle ':completion:*' completer _complete _match _approximate
@@ -159,3 +165,6 @@ zstyle ':completion:*' rehash true
 
 bindkey '^[[1;5C' forward-word   # [Ctrl-RightArrow] - move forward one word
 bindkey '^[[1;5D' backward-word  # [Ctrl-LeftArrow]  - move backward one word
+bindkey -s '^[[5~' ''            # Do nothing on pageup and pagedown. Better than printing '~'.
+bindkey -s '^[[6~' ''
+bindkey '^[[3;5~' kill-word      # ctrl+del   delete next word

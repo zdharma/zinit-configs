@@ -17,21 +17,20 @@ SPACESHIP_PROMPT_ORDER=(
 #  julia         # Julia section
   docker        # Docker section
 #  aws           # Amazon Web Services section
-  venv          # virtualenv section
-  conda         # conda virtualenv section
-  pyenv         # Pyenv section
+#  venv          # virtualenv section
+#  conda         # conda virtualenv section
+#  pyenv         # Pyenv section
 #  dotnet        # .NET section
 #  ember         # Ember.js section
 #  kubecontext   # Kubectl context section
 #  terraform     # Terraform workspace section
   exec_time     # Execution time
   line_sep      # Line break
-  battery       # Battery level and status
+#  battery       # Battery level and status
   vi_mode       # Vi-mode indicator
-  jobs          # Background jobs indicator
   char          # Prompt character
 )
-SPACESHIP_RPROMPT_ORDER=(exit_code)
+SPACESHIP_RPROMPT_ORDER=(exit_code jobs)
 
 #SPACESHIP_DIR_COLOR=117
 SPACESHIP_DIR_COLOR=blue

@@ -3,7 +3,7 @@ function _do_sudo() {
     [[ -z ${__do_sudo_expanded+x} ]] && local -A __do_sudo_expanded
     local -a args
     local -a cmd_alias_arr
-    local cmd_alias
+    local cmd_alias first=true
     while (($#)); do
         case "$1" in
         command|exec|-) shift; break ;;
@@ -11,7 +11,7 @@ function _do_sudo() {
         noglob) __do_sudo_glob=0; shift ;;
         [1-9]) args+=( $1 ); shift ;;
         *)
-            cmd_alias="$(command -v 2>/dev/null -- "$1")"
+            $first && { first=false; cmd_alias="$(command -v 2>/dev/null -- "$1")" }
             if [[ "$?" -eq 0 ]] && [[ "$cmd_alias" == 'alias'* ]] && [[ -z "$__do_sudo_expanded["$1"]" ]]; then
                 __do_sudo_expanded["$1"]=1
                 IFS=' ' read -A cmd_alias_arr <<< "$(sed -e "s/[^=]*=//" -e "s/^'//" -e "s/'$//" <<< "$cmd_alias")"
@@ -41,16 +41,17 @@ function _do_sudo() {
 }
 
 local -a first
-local pos=1 second
+local pos=1 second ret
 for arg in "$@"
 do
     if [[ ${arg:0:1} == "-" ]]; then
         ((++pos))
         first=("${first[@]}" "$arg")
     else
-        noglob _do_sudo ${first[@]} env PATH="$ZPFX/bin:/bedrock/cross/pin/bin:/bedrock/bin:/usr/local/bin:/usr/local/sbin:/opt/bin:/opt/sbin:/usr/bin:/usr/sbin:/bin:/sbin:/snap/bin:/bedrock/cross/bin" ${@:$pos}
+        noglob _do_sudo ${first[@]} ${@:$pos}
+        ret=$?
         unset -f _do_sudo
-        return
+        return $ret
     fi
 done
 command sudo "${@}"

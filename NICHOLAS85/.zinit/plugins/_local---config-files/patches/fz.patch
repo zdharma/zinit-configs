@@ -1,0 +1,30 @@
+Remove code which caused z to hang when completing
+--- changyuheng---fz/fz.sh	2020-02-25 15:05:44.397883607 -0500
++++ changyuheng---fz/fz.sh-patch	2020-02-25 15:05:32.741982804 -0500
+@@ -27,7 +27,7 @@
+   local dir seg starts_with_dir
+   if [[ "$1" == */ ]]; then
+     dir="$1"
+-    find -L "$(cd "$dir" 2>/dev/null && pwd)" -mindepth 1 -maxdepth 1 -type d \
++    find -L "$(pwd)" -mindepth 1 -maxdepth 1 -type d \
+         2>/dev/null | while read -r line; do
+       base="${line##*/}"
+       if [[ "$base" == .* ]]; then
+@@ -42,7 +42,7 @@
+       seg=$(echo "$seg" | tr '[:upper:]' '[:lower:]')
+     fi
+     starts_with_dir=$( \
+-      find -L "$(cd "$dir" 2>/dev/null && pwd)" -mindepth 1 -maxdepth 1 \
++      find -L "$(pwd)" -mindepth 1 -maxdepth 1 \
+           -type d 2>/dev/null | while read -r line; do \
+         base="${line##*/}"
+         if [[ "$seg" != .* && "$base" == .* ]]; then
+@@ -68,7 +68,7 @@
+     if [ -n "$starts_with_dir" ]; then
+       echo "$starts_with_dir"
+     else
+-      find -L "$(cd "$dir" 2>/dev/null && pwd)" -mindepth 1 -maxdepth 1 \
++      find -L "$(pwd)" -mindepth 1 -maxdepth 1 \
+           -type d 2>/dev/null | while read -r line; do \
+         base="${line##*/}"
+         if [[ "$seg" != .* && "$base" == .* ]]; then
