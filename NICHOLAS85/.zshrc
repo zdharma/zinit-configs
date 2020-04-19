@@ -6,8 +6,8 @@ ZINIT_BIN_DIR_NAME="${${ZINIT_BIN_DIR_NAME:-$ZPLG_BIN_DIR_NAME}:-bin}"
 if [[ ! -f $ZINIT_HOME/$ZINIT_BIN_DIR_NAME/zinit.zsh ]]; then
     print -P "%F{33}▓▒░ %F{220}Installing DHARMA Initiative Plugin Manager (zdharma/zinit)…%f"
     command mkdir -p "$ZINIT_HOME" && command chmod g-rwX "$ZINIT_HOME"
-    command git clone https://github.com/zdharma/zinit "$ZINIT_HOME/$ZINIT_BIN_DIR_NAME" && \\
-        print -P "%F{33}▓▒░ %F{34}Installation successful.%f" || \\
+    command git clone https://github.com/zdharma/zinit "$ZINIT_HOME/$ZINIT_BIN_DIR_NAME" && \
+        print -P "%F{33}▓▒░ %F{34}Installation successful.%f" || \
         print -P "%F{160}▓▒░ The clone has failed.%f"
 fi
 source "$ZINIT_HOME/$ZINIT_BIN_DIR_NAME/zinit.zsh"
@@ -32,7 +32,7 @@ zt()  { zinit depth'3' lucid ${1/#[0-9][a-c]/wait"$1"} "${@:2}"; }
 zct() { .zinit-ice load"[[ \${MYPROMPT} = ${1} ]]" unload"[[ \${MYPROMPT} != ${1} ]]" \
         atinit'![ -f "${thmf}/${MYPROMPT}-pre" ] && source "${thmf}/${MYPROMPT}-pre"' \
         atload'![ -f "${thmf}/${MYPROMPT}-post" ] && source "${thmf}/${MYPROMPT}-post"'; \
-        ZINIT_ICE+=("${(kv)ZINIT_ICES[@]}"); }
+        ZINIT_ICE+=("${(kv)ZINIT_ICES[@]}"); __turbo=1;}
 
 ##################
 # Initial Prompt #
@@ -130,6 +130,8 @@ zt 0b light-mode for \
         OMZ::plugins/command-not-found/command-not-found.plugin.zsh \
     pick'autopair.zsh' nocompletions atload'bindkey "^H" backward-kill-word' \
         hlissner/zsh-autopair \
+    trackbinds bindmap'\e[1\;6D -> ^[[1\;5A; \e[1\;6C -> ^[[1\;5B' pick'dircycle.zsh'\
+        michaelxmcbride/zsh-dircycle\
     pick'manydots-magic' nocompile \
         knu/zsh-manydots-magic \
     pick'autoenv.zsh' nocompletions \

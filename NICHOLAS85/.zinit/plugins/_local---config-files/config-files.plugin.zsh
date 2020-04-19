@@ -25,7 +25,7 @@ ZSHZ_DATA="${ZPFX}/z"
 AUTOENV_AUTH_FILE="${ZPFX}/autoenv_auth"
 
 # Directory checked for locally built projects (plugin NICHOLAS85/updatelocal)
-UPDATELOCAL_GITDIR="${HOME}/github/Built"
+UPDATELOCAL_GITDIR="${HOME}/github/built"
 UL_Acond='! $isdolphin' # Condition checked before running UL_Acomm
 UL_Acomm='cache=($chpwd_functions); chpwd_functions=()' # Command run if UL_Acond true
 UL_Bcomm='chpwd_functions=($cache); [ -z $1 ] && { checkupdates && print -n "\033[1;32m➜ \033[0m" } &!' # Command run after updatelocal finishes if UL_Acond was true
@@ -107,8 +107,6 @@ alias open='xdg-open'
 alias atom='atom-beta --disable-gpu'
 alias apm='apm-beta'
 alias ..='cd .. 2>/dev/null || cd "$(dirname $PWD)"' # Allows leaving from deleted directories
-alias -- -='_dircycle_update_cycled +1 || true'
-alias -- +='_dircycle_update_cycled -0 || true'
 
 (( ${+commands[brl]} )) && {
 (){ local stratum strata=( /bedrock/run/enabled_strata/* )
@@ -120,11 +118,9 @@ alias "r${stratum}"="strat -r ${stratum}"
 alias "${stratum:0:1}edots"="command sudo strat -r ${stratum} git --git-dir=/etc/.git --work-tree=/etc"
 done }
 alias bedots='command sudo git --git-dir=/bedrock/.git --work-tree=/bedrock'
-LD_PRELOAD=~arch/usr/lib/libgtk3-nocsd.so.0 # Fix unable to preload msg
 }
 # dot file management
-alias dots=' command git --git-dir=$HOME/.dots/ --work-tree=$HOME'
-#           ^Space added to remove this command from history
+alias dots='command git --git-dir=$HOME/.dots/ --work-tree=$HOME'
 
 #########################
 #         Other         #
