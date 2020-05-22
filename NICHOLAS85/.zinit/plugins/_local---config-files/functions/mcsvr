@@ -1,0 +1,9 @@
+local svrdir="${HOME}/bin/minecraft/servers" dir
+
+[ -x $svrdir/$1/serverstartlinux.sh ] && dir="$svrdir/$1" || {
+	dir=( $( echo $svrdir/* | tr ' ' '\n' |
+	FZF_DEFAULT_OPTS="$FORGIT_FZF_DEFAULT_OPTS -0 --nth 2..,..
+	$FORGIT_ADD_FZF_OPTS" fzf ) )
+}
+
+[ ! -z $dir ] && systemd-inhibit --who="mcsvr ${1:-${dir:t}}" --why="Running Minecraft Server" $dir/serverstartlinux.sh
