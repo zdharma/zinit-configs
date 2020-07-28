@@ -1,0 +1,13 @@
+--- michaelxmcbride---zsh-dircycle/dircycle.zsh	2020-05-30 02:35:14.123391113 -0400
++++ michaelxmcbride---zsh-dircycle/dircycle.zsh-patch	2020-05-30 02:39:33.544349578 -0400
+@@ -18,7 +18,9 @@
+         prompt_pure_async_tasks
+         prompt_pure_preprompt_render
+     else
+-        zle reset-prompt
++        _p9k_precmd
++        zle .reset-prompt
++        zle -R
+     fi
+ }
+ 

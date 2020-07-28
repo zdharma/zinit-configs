@@ -1,0 +1,7 @@
+local fulldir="$(which ${1})"
+
+if file -b -L --mime-type "${fulldir}" | grep -q "text/"; then
+    "${EDITOR}" "${fulldir}"
+else
+    echo "Not a text file, not editing..."
+fi

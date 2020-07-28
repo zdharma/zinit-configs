@@ -1,0 +1,2 @@
+emulate -L zsh
+lsd --group-dirs=first
